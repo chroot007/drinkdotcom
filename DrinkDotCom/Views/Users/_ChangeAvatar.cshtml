@@ -1,0 +1,99 @@
+﻿@model DrinkDotCom.ViewModels.ProfileDetailsViewModel
+
+@if (Model != null && Model.User != null)
+{
+    <form id="frmUserAvatar">
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label text-right">Avatar</label>
+            <div id="pictureArea" class="col-sm-9">
+                @Html.UserAvatar(Model.User.Picture, "image img-thumbnail", "width: 100%", "User Avatar")
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label text-right">Select Avatar</label>
+            <div class="col-sm-9">
+                <input id="avatarPicture" class="form-control" type="file" />
+                <input type="hidden" name="PictureID" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="offset-sm-3 col-sm-9">
+                <button id="btnUpdate" type="button" class="btn btn-success"><i class="fas fa-edit mr-1"></i> Update</button>
+            </div>
+        </div>
+    </form>
+}
+
+<div id="avatarTemplate" style="display:none">
+    @Html.UserAvatar(new DrinkDotCom.Entities.Picture(), "image img-thumbnail", "width: 100%", "User Avatar")
+</div>
+
+<script>
+    $("#btnUpdate").click(function () {
+
+        if ($("[name=PictureID]").val() != "") {
+            $("#dtLoader").show();
+            $("#response-holder").hide();
+
+		    $.ajax({
+		    	url: "@Url.UpdateAvatar()",
+		    	method: "post",
+                   data: $("#frmUserAvatar").serialize()
+		    })
+		    .done(function (response) {
+		    	$("#dtLoader").hide();
+		    	$("#response-holder").show();
+
+		    	if (response.Success) {
+                    swal("Success!", "User info updated.", "success")
+                        .then((ok) => {
+                            window.location.reload();
+			            });
+		    	}
+		    	else {
+                       swal("Error!", response.Message, "error");
+		    	}
+            });
+        }
+        else {
+            swal("Error!", "Please upload a picture.", "error");
+        }
+    });
+
+    $("#avatarPicture").change(function () {
+
+		var pictures = this.files;
+
+		var picsData = new FormData();
+
+		for (var i = 0; i < pictures.length; i++) {
+			picsData.append("Picture", pictures[i]);
+		}
+
+		$.ajax({
+			url: "@Url.UploadPictures()",
+			type: "post",
+			data: picsData,
+			dateType: "json",
+			processData: false,
+			contentType: false
+		})
+        .done(function (responses) {
+            if (responses != undefined) {
+                var picResponse = responses[0];
+                AttachNewImage(picResponse.pictureURL, picResponse.ID);
+            }
+		});
+    });
+
+    function AttachNewImage(imageURL, imageID) {
+        var $newimgHTML = $("#avatarTemplate").clone();
+
+        $newimgHTML.find(".image").attr("src", "/content/images/" + imageURL);
+        $newimgHTML.find(".image").attr("data-id", imageID);
+
+        $("input[name=PictureID]").val(imageID);
+
+        $("#pictureArea").html($newimgHTML.html());
+    }
+</script>

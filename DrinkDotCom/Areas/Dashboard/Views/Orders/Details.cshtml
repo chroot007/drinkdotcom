@@ -1,0 +1,21 @@
+﻿@model DrinkDotCom.Areas.Dashboard.ViewModels.OrderDetailsViewModel
+
+<div class="row mt-2">
+    <div class="col-lg-12 col-md-12">
+        <h2>
+            @Model.PageTitle
+        </h2>
+        <p>
+            @Model.PageDescription
+        </p>
+        <a class="btn btn-success" href="@Url.PrintInvoice(Model.Order.ID)" target="_blank">
+            <i class="fas fa-print mr-1"></i> Print Order Invoice
+        </a>
+        <hr />
+    </div>
+    <div class="col-lg-12">
+        @{
+            Html.RenderPartial("_Details", Model);
+        }
+    </div>
+</div>

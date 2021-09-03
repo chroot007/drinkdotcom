@@ -1,0 +1,22 @@
+﻿@model List<DrinkDotCom.Entities.Category>
+
+@if (Model != null && Model.Count > 0)
+{
+    <li class="nav-item submenu dropdown" title="Featured Categories">
+        <i class="fas fa-sitemap mr-1"></i>
+        <a class="nav-link dropdown-toggle" id="categoriesDropDown"
+           role="button" data-toggle="dropdown">
+            Categories
+        </a>
+        <ul class="dropdown-menu">
+            @foreach (var category in Model.OrderBy(x => x.Name))
+            {
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.SearchProducts(category.SanitizedName)">
+                        <span class="fas fa-star text-warning mr-1"></span>@category.Name
+                    </a>
+                </li>
+            }
+        </ul>
+    </li>
+}

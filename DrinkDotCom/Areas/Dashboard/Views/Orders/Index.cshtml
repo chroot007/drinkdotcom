@@ -1,0 +1,31 @@
+﻿@using DrinkDotCom.Entities
+@model DrinkDotCom.Areas.Dashboard.ViewModels.OrdersListingViewModel
+
+<div class="row mt-2">
+    <div class="col-lg-12 col-md-12">
+        <h2>Orders</h2>
+        <hr />
+    </div>
+    <div class="col-md-12">
+        <form action="@Url.ListAction("Orders")">
+            <div class="input-group mb-3">
+                <input name="useremail" type="text" value="@Model.UserEmail" class="form-control" placeholder="Search by Email">
+                <input name="orderid" type="text" value="@Model.OrderID" class="form-control" placeholder="Search by OrderID">
+                <select class="form-control custom-select" name="orderStatus">
+                    <option value="0">Select by Order Status...</option>
+                    @foreach (var orderStatus in Enum.GetValues(typeof(OrderStatus)).Cast<OrderStatus>())
+                    {
+                        var selected = (int)orderStatus == Model.OrderStatus ? "selected" : string.Empty;
+
+                        <option value="@((int)orderStatus)" @selected>@orderStatus.ToString()</option>
+                    }
+                </select>
+                <button type="submit" class="form-control btn btn-primary"><i class="fas fa-search"></i> Search</button>
+                <a href="@Url.ListAction("Orders")" role="button" class="form-control btn btn-primary"><i class="fas fa-redo-alt"></i> Reset</a>
+            </div>
+        </form>
+    </div>
+    <div class="col-lg-12">
+        @{Html.RenderPartial("_Listing", Model);}
+    </div>
+</div>

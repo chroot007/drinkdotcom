@@ -1,0 +1,281 @@
+﻿@using Microsoft.AspNet.Identity;
+@model DrinkDotCom.ViewModels.CommentablePageViewModel
+
+@{
+    var haveComments = Model != null && Model.Comments != null && Model.Comments.Count > 0;
+
+    var defaultRating = 5;
+    var itemRating = haveComments ? Math.Ceiling(Model.Comments.Average(x => x.Rating)) : 0;
+
+    var userID = User.Identity.IsAuthenticated ? User.Identity.GetUserId() : "";
+
+    var commentsTitle = string.Format("{0} {1}", haveComments ? Model.Comments.Count : 0, haveComments && Model.Comments.Count > 1 ? "Comments" : "Comment");
+}
+
+<div class="row">
+    <div class="col-lg-6">
+        <div class="review_list">
+            @if (haveComments)
+            {
+                foreach (var comment in Model.Comments)
+                {
+                    var defaultStars = defaultRating - comment.Rating;
+
+                    <div class="review_item">
+                        <div class="media">
+                            <div class="d-flex">
+                                @Html.UserAvatar(comment.User.Picture, classes: "img-fluid rounded-circle", style: "height:70px; width:70px", alt: comment.User.UserName)
+                            </div>
+                            <div class="media-body">
+                                <h4>
+                                    @comment.User.FullName
+                                    <span class="float-right mb-2">
+                                        @comment.TimeStamp
+                                    </span>
+                                </h4>
+                                @for (int i = 1; i <= comment.Rating; i++)
+                                {
+                                    <i class="fas fa-star"></i>
+                                }
+
+                                @for (int i = 1; i <= defaultStars; i++)
+                                {
+                                    <i class="far fa-star"></i>
+                                }
+                            </div>
+                        </div>
+                        <p>
+                            @comment.Text
+                        </p>
+                        @if (comment != Model.Comments.Last())
+                        {
+                            <hr />
+                        }
+                    </div>
+
+                }
+            }
+            else
+            {
+                <div class="alert alert-secondary" role="alert">
+                    There are no comments on this products.
+                </div>
+            }
+        </div>
+    </div>
+    <div class="col-lg-6">
+        @if (haveComments)
+        {
+            <div class="row total_rate">
+                <div class="col-6">
+                    <div class="box_total">
+                        <h5>Overall Average</h5>
+                        <h4>
+                            @itemRating<small>/@defaultRating</small>
+                        </h4>
+                        <h6>@commentsTitle</h6>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="rating_list">
+                        <h3>Based on @commentsTitle</h3>
+                        <ul class="list">
+                            @for (int i = defaultRating; i >= 1; i--)
+                            {
+                                var ratingComments = Model.Comments.Where(x => x.Rating == i).Count();
+
+                                <li>
+                                    <a>
+                                        @for (int j = 1; j <= i; j++)
+                                        {
+                                            <i class="fas fa-star"></i>
+                                        }
+
+                                        @for (int j = 1; j <= (defaultRating - i); j++)
+                                        {
+                                            <i class="far fa-star"></i>
+                                        }
+
+                                        @(string.Format("({0})", ratingComments))
+                                    </a>
+                                </li>
+                            }
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="row total_rate">
+                <div class="col-6">
+                    <div class="box_total">
+                        <h5>Overall Average</h5>
+                        <h4>
+                            0<small>/@defaultRating</small>
+                        </h4>
+                        <h6>@commentsTitle</h6>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="rating_list">
+                        <h3>Based on @commentsTitle</h3>
+                        <ul class="list">
+                            @for (int i = defaultRating; i >= 1; i--)
+                            {
+                                var ratingComments = 0;
+
+                                <li>
+                                    <a>
+                                        @for (int j = 1; j <= i; j++)
+                                        {
+                                            <i class="fas fa-star"></i>
+                                        }
+
+                                        @for (int j = 1; j <= (defaultRating - i); j++)
+                                        {
+                                            <i class="far fa-star"></i>
+                                        }
+
+                                        @(string.Format("({0})", ratingComments))
+                                    </a>
+                                </li>
+                            }
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        }
+        <div class="review_box">
+            <h4>Add a Review</h4>
+            @if (User.Identity.IsAuthenticated)
+            {
+                <p>Your Rating:</p>
+                <ul class="list">
+                    <li class="ratingStar" data-value="1"><a><i class="fas fa-star"></i></a></li>
+                    <li class="ratingStar" data-value="2"><a><i class="fas fa-star"></i></a></li>
+                    <li class="ratingStar" data-value="3"><a><i class="fas fa-star"></i></a></li>
+                    <li class="ratingStar" data-value="4"><a><i class="fas fa-star"></i></a></li>
+                    <li class="ratingStar" data-value="5"><a><i class="fas fa-star"></i></a></li>
+                </ul>
+                <p><span id="ratingDisplay">5</span> Star</p>
+                <form id="commentForm" class="form-contact form-review mt-3">
+                    <input type="hidden" name="EntityID" value="@Model.EntityID" />
+                    <input type="hidden" name="RecordID" value="@Model.RecordID" />
+                    <input type="hidden" name="Rating" id="ratingsValue" value="5" />
+                    <div class="form-group">
+                        <textarea class="form-control different-control w-100" cols="30" rows="5" name="Text" placeholder="Write your comment here."></textarea>
+                    </div>
+                    <div class="form-group text-center text-md-right mt-3">
+                        <button id="btnComment" type="button" class="button button--active button-review">Leave your Comment</button>
+                    </div>
+                </form>
+            }
+            else
+            {
+                <b>You need to login to leave comments.</b>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+	$("#commentForm").validate({
+		errorClass: "alert alert-danger",
+		errorElement: "div",
+		rules: {
+			Text: {
+				required: true,
+				minlength: 15,
+				maxlength: 500
+			},
+			EntityID: {
+				required: true
+			},
+			RecordID: {
+				required: true
+			},
+		},
+		messages: {
+			Text: {
+				required: "Please add a valid comment.",
+				minlength: "Minimum Length is 15.",
+				maxlength: "Maximum Length is 500."
+			},
+			EntityID: {
+				required: "Comment type not identified."
+			},
+			RecordID: {
+				required: "Comment Record not identified.",
+			}
+		},
+		highlight: function (element, errorClass) {
+			$(element).removeClass(errorClass);
+		}
+	});
+
+	$("#btnComment").click(function () {
+		if ($("#commentForm").valid()) {
+			$.ajax({
+				url: "@Url.Action("LeaveComment", "Comments", new { area = "Dashboard" })",
+				type: "post",
+				data: $("#commentForm").serialize()
+			})
+			.done(function (response) {
+				if (response.Success) {
+					window.location.reload();
+				}
+				else {
+					swal("Error!", response.Message, "error");
+				}
+			})
+			.fail(function () {
+				swal("Error!", "Error Occured. Please try again later.", "error");
+			});
+		}
+	});
+
+    $(".ratingStar").click(function () {
+		$(".ratingStar i").addClass("far").removeClass("fas");
+
+        var $thisStar = $(this);
+        $("i", $thisStar).addClass("fas").removeClass("far");
+		$thisStar.prevAll(".ratingStar").children("a").children("i").addClass("fas").removeClass("far");
+        $("#ratingsValue").val($thisStar.attr("data-value"));
+        $("#ratingDisplay").html($thisStar.attr("data-value"));
+    });
+
+    $(".btnDeleteComment").click(function () {
+        var commentRow = $(this).parents(".commentRow");
+
+        swal({
+			title: "Are you sure you want to delete this comment?",
+			icon: "warning",
+			buttons: true,
+			dangerMode: true,
+		})
+		.then((willDelete) => {
+			if (willDelete) {
+				$("#dtLoader").show();
+				$("#response-holder").hide();
+
+				$.ajax({
+					url: "@Url.DeleteAction("Comments")",
+                       method: "post",
+                       data: { id : $(this).attr("data-id") }
+				})
+                .done(function (response) {
+                    if (response != null && response.Success != undefined && response.Success) {
+                        commentRow.next("hr").remove();
+                        commentRow.remove();
+				    }
+				    else {
+                        swal("Error!", response.Message, "error");
+				    }
+				});
+			}
+		});
+     });
+</script>

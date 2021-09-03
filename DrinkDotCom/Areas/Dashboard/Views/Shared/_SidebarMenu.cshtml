@@ -1,0 +1,79 @@
+﻿
+    <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion toggled" id="menuSidebar">
+
+        <!-- Sidebar - Brand -->
+        <a class="sidebar-brand d-flex align-items-center justify-content-center" href="@Url.Dashboard()">
+            <div class="sidebar-brand-icon">
+                <i class="fas fa-store mr-1"></i>
+            </div>
+            <div class="sidebar-brand-text mx-3">
+                @ConfigurationsHelper.ApplicationName
+            </div>
+        </a>
+        <li class="nav-item">
+            <a class="nav-link" href="@Url.Home()">
+                <i class="mr-1 fas fa-home"></i>
+                <span>Home</span>
+            </a>
+        </li>
+        <li class="nav-item @Html.MenuItemClass("Dashboard")">
+            <a class="nav-link" href="@Url.Dashboard()">
+                <i class="fas fa-user-shield"></i>
+                <span>Dashboard</span>
+            </a>
+        </li>
+        <li class="nav-item @Html.MenuItemClass("Categories")">
+            <a class="nav-link" href="@Url.ListAction("Categories")">
+                <i class="mr-1 fas fa-sitemap"></i>
+                <span>Categories</span>
+            </a>
+        </li>
+        <li class="nav-item @Html.MenuItemClass("Products")">
+            <a class="nav-link" href="@Url.ListAction("Products")">
+                <i class="fas fa-cubes mr-1"></i>
+                <span>Products</span>
+            </a>
+        </li>
+        <li class="nav-item @Html.MenuItemClass("Promos")">
+            <a class="nav-link" href="@Url.ListAction("Promos")">
+                <i class="fas fa-tags mr-1"></i>
+                <span>Promos</span>
+            </a>
+        </li>
+        <li class="nav-item @Html.MenuItemClass("Orders")">
+            <a class="nav-link" href="@Url.ListAction("Orders")">
+                <i class="fas fa-funnel-dollar mr-1"></i>
+                <span>Orders</span>
+            </a>
+        </li>
+        <li class="nav-item @Html.MenuItemClass("Comments")">
+            <a class="nav-link" href="@Url.ListAction("Comments")">
+                <i class="mr-1 fas fa-comments"></i>
+                <span>Comments</span>
+            </a>
+        </li>
+        <li class="nav-item @Html.MenuItemClass("Users")">
+            <a class="nav-link" href="@Url.ListAction("Users")">
+                <i class="mr-1 fas fa-users"></i>
+                <span>Users</span>
+            </a>
+        </li>
+        <li class="nav-item @Html.MenuItemClass("Roles")">
+            <a class="nav-link" href="@Url.ListAction("Roles")">
+                <i class="mr-1 fas fa-users-cog"></i>
+                <span>Roles</span>
+            </a>
+        </li>
+        <li class="nav-item @Html.MenuItemClass("Configurations")">
+            <a class="nav-link" href="@Url.ListAction("Configurations")">
+                <i class="mr-1 fas fa-cogs"></i>
+                <span>Configurations</span>
+            </a>
+        </li>
+
+        <!-- Sidebar Toggler (Sidebar) -->
+        <div class="text-center d-none d-md-inline">
+            <button class="rounded-circle border-0" id="sidebarToggle"></button>
+        </div>
+
+    </ul>

@@ -1,0 +1,150 @@
+﻿@using DrinkDotCom.Entities
+@using DrinkDotCom.Utilities.Code.Commons
+@model DrinkDotCom.Areas.Dashboard.ViewModels.ConfigurationsListingViewModels
+
+<table class="table table-hover">
+    <thead class="thead-light">
+        <tr>
+            <th>
+                Key
+            </th>
+            <th>
+                Value
+            </th>
+            <th>
+                Description
+            </th>
+            <th>
+                Configuration Type
+            </th>
+            <th>
+                Actions
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Configurations != null && Model.Configurations.Count > 0)
+        {
+            foreach (var configuration in Model.Configurations)
+            {
+                <tr>
+                    <td>
+                        @configuration.Key
+                    </td>
+                    <td>
+                        @if (false && configuration.ConfigurationType == (int)ConfigurationType.HomeSliders)
+                        {
+                            var topHeading = configuration.Value.GetSubstringText("#TH#", "#MH#");
+                            var mainHeading = configuration.Value.GetSubstringText("#MH#", "#PG#");
+                            var paragraph = configuration.Value.GetSubstringText("#PG#", "");
+                            
+                            if(!string.IsNullOrEmpty(topHeading))
+                            {
+                                topHeading = topHeading.Replace("TH#", "");
+                            }
+                            if(!string.IsNullOrEmpty(mainHeading))
+                            {
+                                mainHeading = mainHeading.Replace("MH#", "");
+                            }
+                            if(!string.IsNullOrEmpty(paragraph))
+                            {
+                                paragraph = paragraph.Replace("PG#", "");
+                            }
+
+                            <h5>@topHeading</h5>
+                            <h4>@mainHeading</h4>
+                            <p>@paragraph</p>
+                        }
+                        else
+                        {
+                            <span>
+                                @configuration.Value
+                            </span>
+                        }
+                    </td>
+                    <td>
+                        @configuration.Description
+                    </td>
+                    <td>
+                        @configuration.ConfigurationType
+                    </td>
+                    <td>
+                        <button class="editButton btn btn-primary" data-id="@configuration.Key">
+                            <i class="fas fa-edit"></i>
+                            Edit
+                        </button>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td class="text-center" colspan="5">
+                    No Results Found.
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (Model.Pager != null && Model.Pager.TotalPages > 1)
+{
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+
+            @if (Model.Pager.CurrentPage == 1)
+            {
+                <li class="page-item disabled">
+                    <a class="page-link" href="#">Previous</a>
+                </li>
+            }
+            else
+            {
+                <li class="page-item">
+                    <a class="page-link" href="@Url.Configurations(Model.SearchTerm, Model.ConfigurationType, Model.Pager.CurrentPage - 1)">Previous</a>
+                </li>
+            }
+
+            @for (int page = Model.Pager.StartPage; page < Model.Pager.EndPage + 1; page++)
+            {
+                var active = page == Model.Pager.CurrentPage ? "active" : string.Empty;
+
+                <li class="page-item @active">
+                    <a class="page-link" href="@Url.Configurations(Model.SearchTerm, Model.ConfigurationType, page)">
+                        @page
+                    </a>
+                </li>
+            }
+
+            @if (Model.Pager.CurrentPage == Model.Pager.EndPage)
+            {
+                <li class="page-item disabled">
+                    <a class="page-link" href="#">Next</a>
+                </li>
+            }
+            else
+            {
+                <li class="page-item">
+                    <a class="page-link" href="@Url.Configurations(Model.SearchTerm, Model.ConfigurationType, Model.Pager.CurrentPage + 1)">Next</a>
+                </li>
+            }
+
+        </ul>
+    </nav>
+}
+
+<script>
+	$(".editButton").click(function () {
+		$.ajax({
+			url: "@Url.EditAction("Configurations")",
+			method: "get",
+			data: {
+				Key: $(this).attr("data-id")
+			}
+		}).done(function (response) {
+			$("#contentArea").html(response);
+			$('#formModal').modal('toggle');
+		});
+	});
+</script>

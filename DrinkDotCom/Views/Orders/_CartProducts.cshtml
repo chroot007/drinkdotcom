@@ -1,0 +1,58 @@
+﻿@using DrinkDotCom.Entities
+@model DrinkDotCom.ViewModels.CartProductsViewModel
+
+@if (Model != null && Model.Products != null && Model.Products.Count > 0)
+{
+
+
+    <div class="cart_inner">
+        <div class="table-responsive">
+            <table class="table table-borderless">
+                <tbody>
+                    @foreach (var product in Model.Products)
+                    {
+                        var thumbnail = new Picture();
+
+                        if (product.ProductPictures != null && product.ProductPictures.Count > 0)
+                        {
+                            var selectedThumbnail = product.ProductPictures.FirstOrDefault(x => x.PictureID == product.ThumbnailPictureID);
+
+                            thumbnail = selectedThumbnail != null ? selectedThumbnail.Picture : product.ProductPictures.FirstOrDefault().Picture;
+                        }
+
+                    <tr>
+                        <td>
+                            <div class="media">
+                                <div class="d-flex">
+                                    @Html.Picture(thumbnail, classes: "mx-1", style: "width:100px", alt: product.Name)
+                                </div>
+                                <div class="media-body">
+                                    <p>
+                                        <a class="changetext" href="@Url.ProductDetails(product.Category.Name.ToLower().SanitizeString(), product.ID)">
+                                            @product.Name
+                                        </a>
+                                    </p>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            Quantity
+                            <span class="badge badge-primary badge-pill" title="Product Quantity">
+                                @Model.ProductIDs.Where(x => x == product.ID).Count()
+                            </span>
+                        </td>
+                       
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning mb-0" role="alert">
+        No products in the cart.
+    </div>
+}
+

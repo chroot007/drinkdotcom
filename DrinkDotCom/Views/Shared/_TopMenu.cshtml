@@ -1,0 +1,140 @@
+﻿@using Microsoft.AspNet.Identity
+
+<header class="header_area fixed">
+    <div class="main_menu">
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="container">
+                <a class="navbar-brand logo_h" href="@Url.Home()">
+                    <div class="logo">
+                        <i class="fas fa-glass-cheers"></i>
+                        TheDrinkKiosk
+                        @*@ConfigurationsHelper.ApplicationName*@
+                    </div>
+                </a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <div class="collapse navbar-collapse offset" id="navbarSupportedContent">
+                    <ul class="nav navbar-nav menu_nav ml-auto">
+                        <li class="nav-item @Html.MenuItemClass("Home", "Index")">
+                            <i class="fas fa-home mr-1"></i>
+                            <a class="nav-link" href="@Url.Home()">Home</a>
+                        </li>
+                        <li class="nav-item @Html.MenuItemClass("Home", "Search")">
+                            <i class="fas fa-cubes mr-1"></i>
+                            <a class="nav-link" href="@Url.SearchProducts()">Products</a>
+                        </li>
+                        @{ Html.RenderAction("FeaturedCategories", "Categories", new { area = "" }); }
+
+                        <li class="nav-item @Html.MenuItemClass("Orders", "Tracking")">
+                            <i class="fas fa-truck mr-1"></i>
+                            <a class="nav-link" href="@Url.OrderTrack()">Tracking</a>
+                        </li>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            var u = User.Identity.GetUserPicture();
+
+                            if (User.IsInRole("Administrator"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" href="@Url.Dashboard()">
+                                        <i class="fas fa-user-shield mr-1"></i>
+                                        Admin Area
+                                    </a>
+                                </li>
+                            }
+
+                            <li class="nav-item submenu dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">
+                                    @Html.UserAvatar(User.Identity.GetUserPicture(), "image rounded-circle", style: "width: 28px; height: 28px", alt: string.Format("Hi {0}!", User.Identity.GetUserName()))
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="@Url.UserProfile()">
+                                            <i class="fas fa-user-cog mr-1"></i>
+                                            Profile
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="#" id="btnLogOff">
+                                            <i class="fas fa-sign-out-alt mr-1"></i>
+                                            LogOff
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item @Html.MenuItemClass("Users", "Login")">
+                                <i class="fas fa-sign-in-alt mr-1"></i>
+                                <a class="nav-link" href="@Url.Login()">Login</a>
+                            </li>
+                            <li class="nav-item @Html.MenuItemClass("Users", "Register")">
+                                <i class="fas fa-user mr-1"></i>
+                                <a class="nav-link" href="@Url.Register()">Register</a>
+                            </li>
+                        }
+
+                    </ul>
+
+                    <ul class="nav-shop">
+                        <li class="nav-item">
+                            <button class="cartMenu" data-toggle="modal" data-target="#cartModal">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span class="nav-shop__circle countholder">0</span>
+                                <address>Cart</address>
+                            </button>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="modal fade" id="cartModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-shopping-cart m-1"></i>
+                    Your Cart
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border my-5 bloader" role="status" style="display:none">
+                    </div>
+                </div>
+                <div class="cartItems">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="checkout_btn_inner d-flex align-items-center">
+                    <a class="gray_btn mr-2" href="@Url.Checkout()">Checkout</a>
+                    <a class="gray_btn" href="#" data-dismiss="modal">Close</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (User.Identity.IsAuthenticated)
+{
+    <form id="logOffForm" method="post" action="@Url.Logoff()">
+        @Html.AntiForgeryToken()
+    </form>
+
+    <script>
+        $("#btnLogOff").click(function () {
+            $("#logOffForm").submit();
+        });
+    </script>
+}

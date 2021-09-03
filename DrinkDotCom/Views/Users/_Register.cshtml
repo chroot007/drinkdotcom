@@ -1,0 +1,202 @@
+﻿@model DrinkDotCom.ViewModels.RegisterViewModel
+
+    <form class="row login_form" id="registerForm">
+        @Html.AntiForgeryToken()
+        @*@Html.ValidationSummary(true)*@
+        <div class="col-md-12 form-group">
+            <input class="form-control" name="FullName" placeholder="FullName"
+                   onfocus="this.placeholder = ''" onblur="this.placeholder = 'FullName'"
+                   value="@Model.FullName">
+            @Html.ValidationMessageFor(model => model.FullName)
+
+        </div>
+        <div class="col-md-12 form-group">
+            <input class="form-control" name="Username" placeholder="Username"
+                   onfocus="this.placeholder = ''" onblur="this.placeholder = 'Username'"
+                   value="@Model.Username">
+            @Html.ValidationMessageFor(model => model.Username)
+
+        </div>
+
+        <div class="col-md-12 form-group">
+            <input class="form-control" name="Email" placeholder="Email" onfocus="this.placeholder = ''"
+                   onblur="this.placeholder = 'Email'" value="@Model.Email">
+            @Html.ValidationMessageFor(model => model.Email)
+
+        </div>
+
+
+        <div class="col-md-12 form-group">
+            <input class="form-control" name="PhoneNumber" placeholder="Phone Number" onfocus="this.placeholder = ''"
+                   onblur="this.placeholder = 'Phone Number'" value="@Model.PhoneNumber">
+            @Html.ValidationMessageFor(model => model.PhoneNumber)
+
+        </div>
+
+
+        <div class="col-md-12 form-group">
+            <input type="text" class="datepicker form-control " name="Dateofbirth" id="lastReporteddate"
+                   placeholder="Date of birth" onfocus="this.placeholder = ''"
+                   onblur="this.placeholder = 'Date of birth'" value="@Model.Dateofbirth" />
+            @Html.ValidationMessageFor(model => model.Dateofbirth)
+
+        </div>
+
+        <div class="col-md-12 form-group">
+            <input class="form-control" name="Address" placeholder="Address" onfocus="this.placeholder = ''"
+                   onblur="this.placeholder = 'Address'" value="@Model.Address">
+            @Html.ValidationMessageFor(model => model.Address)
+
+        </div>
+
+
+        <div class="col-md-12 form-group">
+            <input class="form-control" name="City" placeholder="City" onfocus="this.placeholder = ''"
+                   onblur="this.placeholder = 'City'" value="@Model.City">
+            @Html.ValidationMessageFor(model => model.City)
+
+        </div>
+
+        <div class="col-md-12 form-group">
+            <input class="form-control" name="Country" placeholder="Country" onfocus="this.placeholder = ''"
+                   onblur="this.placeholder = 'Country'" value="@Model.Country">
+            @Html.ValidationMessageFor(model => model.Country)
+
+        </div>
+
+        <div class="col-md-12 form-group">
+            <input type="password" class="form-control" name="Password" placeholder="Password"
+                   onfocus="this.placeholder = ''" onblur="this.placeholder = 'Password'" id="regPassword">
+
+        </div>
+        <div class="col-md-12 form-group">
+            <input type="password" class="form-control" name="ConfirmPassword" placeholder="Confirm Password"
+                   onfocus="this.placeholder = ''" onblur="this.placeholder = 'Confirm Password'">
+
+        </div>
+        <div class="col-md-12 form-group">
+            <div class="creat_account">
+                <input type="checkbox" name="RememberMe" value="true" id="RememberMe" checked>
+                <input type="hidden" name="RememberMe" value="false">
+                <label class="form-check-label" for="RememberMe">
+                    Remember Me?
+                </label>
+            </div>
+        </div>
+        <div class="col-md-12 form-group errorsRow" style="display:none">
+            <div class="alert alert-danger errorMessages mb-0" role="alert"></div>
+        </div>
+        <div class="col-md-12 form-group">
+            <button type="submit" id="registerButton" class="button button-login w-100">Register</button>
+        </div>
+    </form>
+
+
+  <script type="text/javascript">
+        $(document).ready(function () {
+            $("#lastReporteddate").datepicker();
+        });
+   </script>
+
+<script>
+
+    validateRegisterForm();
+
+    $("#registerForm").submit(function (e) {
+        submitForm();
+
+        e.preventDefault();
+    });
+    var d = new Date();
+var year = d.getFullYear() - 21;
+d.setFullYear(year);
+
+$("#lastReporteddate").datepicker({ dateFormat: "dd/mm/yy",
+		    changeMonth: true,
+		    changeYear: true,
+		    maxDate: year,
+		    minDate: "-100Y",
+            yearRange: '-100:' + year + '',
+            defaultDate: d
+		 });
+    
+$("#registerButton").click(function(){
+        var dob = $("#lastReporteddate").val();
+        var now = new Date();
+        var birthdate = dob.split("/");
+        var born = new Date(birthdate[2], birthdate[1]-1, birthdate[0]);
+        age=get_age(born,now);
+     
+        console.log(birthdate[2]+" : "+birthdate[1]+" : "+birthdate[0]);
+        console.log(age);
+    
+        if (age<=21)
+        {
+     swal("You must be at least 21 years of age to register");
+            return false;
+        }
+});
+
+
+    function get_age(born, now) {
+      var birthday = new Date(now.getFullYear(), born.getMonth(), born.getDate());
+      if (now >= birthday) 
+        return now.getFullYear() - born.getFullYear();
+      else
+        return now.getFullYear() - born.getFullYear() - 1;
+    }
+
+    //$("#registerButton").click(function () {
+    //    submitForm();
+    //})     {
+    function submitForm() {
+        $(".errorsRow .errorMessages", "#registerForm").html("");
+        $(".errorsRow", "#registerForm").hide(200);
+        $(".errorsRow .errorMessages", "#registerForm").hide();
+
+        if ($("#registerForm").valid()) {
+            $(".floader", "#registerForm").show();
+            $(".response-holder", "#registerForm").hide();
+
+            $.ajax({
+                url: "@Url.Register()",
+                type: "post",
+                data: $("#registerForm").serialize(),
+            })
+            .done(function (response) {
+                if (response != null && response.Success) {
+                    window.location.href = "/";
+                }
+                else {
+                    $(".errorsRow .errorMessages", "#registerForm").html(response.Messages);
+                    $(".errorsRow", "#registerForm").show(200);
+                    $(".errorsRow .errorMessages", "#registerForm").show();
+                    $(".floader", "#registerForm").hide();
+                    $(".response-holder", "#registerForm").show();
+                }
+             })
+             .fail(function(jqXHR, textStatus, errorThrown) {
+                 $(".floader", "#registerForm").hide();
+                 $(".response-holder", "#registerForm").show();
+
+                 swal("Error!", "An error has occured.", "error");
+
+                 console.log('jqXHR:' + jqXHR);
+                 console.log('textStatus:' + textStatus);
+                 console.log('errorThrown:' + errorThrown);
+             });
+
+        }
+    }
+
+</script>
+
+@*@section scripts{
+    <script>
+    $(function () {
+            if (document.getElementById("agedate").value < 21) {
+                document.getElementById("AgedateVal").value = "You must be at least 21 years of age to register!"
+            }
+        });
+    </script>
+}*@

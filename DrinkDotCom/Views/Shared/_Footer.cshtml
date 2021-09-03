@@ -1,0 +1,73 @@
+﻿<footer class="footer">
+    <div class="footer-area">
+        <div class="container">
+            <div class="row section_gap">
+                <div class="col-lg-4 col-md-6 col-sm-6">
+                    <div class="single-footer-widget tp_widgets">
+                        <h4 class="footer_title large_title">
+                            <i class="fas fa-glass-cheers"></i>
+                            @ConfigurationsHelper.ApplicationName
+                        </h4>
+                        <address>
+                            @ConfigurationsHelper.ApplicationIntro.
+                            <hr />
+
+                            Address:
+                            <br />
+                            Clifton Campus<br />
+                            Nottingham<br />
+                            United Kingdom.
+                        </address>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-6">
+                    <div class="single-footer-widget tp_widgets">
+                        <ul class="list-unstyled text-small">
+                            <li>
+                                <p class="sm-head">
+                                    <span class="m-2 fab fa-facebook-f"></span>
+                                    <a class="a-font" href="@ConfigurationsHelper.FacebookURL" target="_blank" rel="nofollow">Facebook</a>
+                                </p>
+                            </li>
+                            <li>
+                                <p class="sm-head">
+                                    <span class="m-2 fab fa-twitter"></span>
+                                    <a class="a-font" href="@ConfigurationsHelper.TwitterURL" target="_blank" rel="nofollow">Twitter</a>
+                                </p>
+                            </li>
+                            <li>
+                                <p class="sm-head">
+                                    <span class="m-2 fab fa-instagram"></span>
+                                    <a class="a-font" href="@ConfigurationsHelper.InstagramURL" target="_blank" rel="nofollow">Instagram</a>
+                                </p>
+                            </li>
+
+                            <li>
+                                <p class="sm-head">
+                                    <span class="m-2 fas fa-phone-volume"></span>
+                                    <a class="a-font" href="tel://@ConfigurationsHelper.PhoneNumber">@ConfigurationsHelper.PhoneNumber</a>
+                                </p>
+                            </li>
+
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-6">
+                    <div class="single-footer-widget tp_widgets">
+                        <h4 class="footer_title">Quick Links</h4>
+                        <ul class="list-unstyled">
+                            <li><i class="m-2 fas fa-user-friends"></i> <a class="a-font" href="@Url.RouteUrl("AboutUs")">About Us</a></li>
+                            <li><i class="m-2 fas fa-envelope"></i> <a class="a-font" href="@Url.RouteUrl("ContactUs")">Contact Us</a></li>
+                            <li><i class="m-2 fas fa-user-shield"></i> <a class="a-font" href="@Url.RouteUrl("PrivacyPolicy")">Privacy Policy</a></li>
+                            <li><i class="m-2 fas fa-cube"></i> <a class="a-font" href="@Url.RouteUrl("RefundPolicy")">Refund Policy</a></li>
+                            <li><i class="m-2 fas fa-clipboard-list"></i> <a class="a-font" href="@Url.RouteUrl("TermsConditions")">Terms &amp; Conditions</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br/>
+    <p class="text-md-center">&copy; @DateTime.Now.Year - TheDrinkKiosk</p>
+
+</footer>

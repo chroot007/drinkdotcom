@@ -1,0 +1,90 @@
+﻿@model DrinkDotCom.Areas.Dashboard.ViewModels.UserRolesViewModel
+
+@if (Model != null)
+{
+    if (Model.UserRoles != null && Model.UserRoles.Count > 0)
+    {
+        <table class="table table-hover">
+            <thead class="thead-light">
+                <tr>
+                    <th colspan="2"><i class="fas fa-user-shield mr-1"></i> Current User Roles</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var role in Model.UserRoles)
+                {
+                    <tr>
+                        <td width="70%">@role.Name</td>
+                        <td width="30%">
+                            <button type="button" class="btn btn-danger btnDeleteRole" data-id="@role.Id"><i class="fas fa-user-times mr-1"></i> Delete</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-warning" role="alert">
+            This user doesn't have any roles.
+        </div>
+    }
+
+    var userCanHaveRoles = Model.AvailableRoles.Where(r => Model.UserRoles.FirstOrDefault(ur => ur.Id == r.Id) == null).ToList();
+
+    if (userCanHaveRoles != null && userCanHaveRoles.Count > 0)
+    {
+        <table class="table table-hover">
+            <thead class="thead-light">
+                <tr>
+                    <th colspan="2"><i class="fas fa-user-plus mr-1"></i> Assign New Roles</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td width="70%">
+                        <select class="form-control" id="sltAssignRoles">
+                            <option value="">Please Select</option>
+                            @foreach (var role in userCanHaveRoles)
+                            {
+                                <option value="@role.Id">
+                                    @role.Name
+                                </option>
+                            }
+                        </select>
+                    </td>
+                    <td width="30%">
+                        <button id="btnAssignRole" type="button" class="btn btn-success"><i class="fas fa-user-check mr-1"></i> Assign</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    }
+}
+
+<script>
+    $("#btnAssignRole").click(function () {        
+        roleAction("@Url.AssignUserRole(Model.User.Id)", $("#sltAssignRoles").val());
+	});
+
+	$(".btnDeleteRole").click(function () {
+        roleAction("@Url.DeleteUserRole(Model.User.Id)", $(this).attr("data-id"));
+    });
+
+    function roleAction(url, roleID) {
+        if (roleID != undefined && roleID != "") {
+			$("#dtLoader").show();
+			$("#response-holder").html("");
+			$.ajax({
+				url: url,
+				data: {
+					roleID: roleID
+				}
+			})
+			.done(function (response) {
+				$("#dtLoader").hide();
+				$("#response-holder").html(response);
+			});
+		}
+    }
+</script>

@@ -1,0 +1,288 @@
+﻿@using Microsoft.AspNet.Identity
+@using DrinkDotCom.Entities
+@model DrinkDotCom.ViewModels.TrackOrderViewModel
+
+@if (Model != null && Model.Order != null)
+{
+    var i = 0;
+    var showOrderPlaceMessage = ViewBag.ShowOrderPlaceMessage != null ? Convert.ToBoolean(ViewBag.ShowOrderPlaceMessage) : false;
+
+    var orderStatus = Model.Order.OrderHistory.OrderByDescending(x => x.ModifiedOn).FirstOrDefault();
+
+    if (showOrderPlaceMessage)
+    {
+        <div class="alert alert-success" role="alert">
+            Thank You. Your order has been placed. You can access your order details anytime in your <a href="@Url.UserProfile()">orders section in profile</a>.
+        </div>
+    }
+
+    <div class="accordion" id="orderTrackingAccordion">
+        <div class="card">
+            <div class="card-header" id="headingOne">
+                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#orderStatus">
+                    Order Status
+                </button>
+                <a class="btn btn-success float-right" href="@Url.PrintInvoice(Model.Order.ID)" target="_blank">
+                    <i class="fas fa-print mr-1"></i> Print Invoice
+                </a>
+            </div>
+
+            <div id="orderStatus" class="collapse show" data-parent="#orderTrackingAccordion">
+                <div class="card-body">
+                    <table class="table table-borderless text-center mb-0">
+                        <tbody>
+                            @if (orderStatus != null)
+                            {
+                                <tr>
+                                    <td style="width:50%;">
+                                        Order Status:
+                                    </td>
+                                    <td style="width:50%;">
+                                        <h4 class="m-0">
+                                            <span class="badge badge-secondary @Html.getCellBackgroundClassByOrderStatus((OrderStatus)orderStatus.OrderStatus)">
+                                            @((OrderStatus)orderStatus.OrderStatus)
+                                            </span>
+                                        </h4>
+                                    </td>
+                                </tr>
+                            }
+                            <tr>
+                                <td style="width:50%;">
+                                    Payment Method:
+                                </td>
+                                <td style="width:50%;">
+                                    @((PaymentMethods)Model.Order.PaymentMethod)
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width:50%;">
+                                    Date:
+                                </td>
+                                <td style="width:50%;">
+                                    @Model.Order.PlacedOn
+                                </td>
+                            </tr>
+                            @if (orderStatus != null && !(orderStatus.ModifiedOn.Equals(Model.Order.PlacedOn)))
+                            {
+                                <tr>
+                                    <td style="width:50%;">
+                                        Updated On:
+                                    </td>
+                                    <td style="width:50%;">
+                                        @(orderStatus.ModifiedOn)
+                                    </td>
+                                </tr>
+                            }
+                            <tr>
+                                <td style="width:50%;">
+                                    Order ID:
+                                </td>
+                                <td style="width:50%;">
+                                    @(Model.Order.ID)
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width:50%;">
+                                    Order Unique Code:
+                                </td>
+                                <td style="width:50%;">
+                                    @Model.Order.OrderCode
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header" id="headingTwo">
+                <h2 class="mb-0">
+                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#orderDetails">
+                        Order Details
+                    </button>
+                </h2>
+            </div>
+            <div id="orderDetails" class="collapse" data-parent="#orderTrackingAccordion">
+                <div class="card-body">
+                    <table class="table table-striped m-0">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">Quantity</th>
+                                <th scope="col">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var orderItem in Model.Order.OrderItems)
+                            {
+                                i++;
+
+                                <tr>
+                                    <th scope="row">@i</th>
+                                    <td>
+                                        <a href="@Url.ProductDetails(orderItem.Product.Category.SanitizedName, orderItem.ProductID)" target="_blank">
+                                            @orderItem.Product.Name
+                                        </a>
+                                    </td>
+                                    <td>
+                                        @orderItem.ItemPrice.WithCurrency()
+                                    </td>
+                                    <td>
+                                        @orderItem.Quantity
+                                    </td>
+                                    <td>
+                                        @((orderItem.ItemPrice * orderItem.Quantity).WithCurrency())
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="4" class="text-right">
+                                    <strong>Total Ammount</strong>
+                                </td>
+                                <td colspan="2">
+                                    <span>
+                                        @Model.Order.TotalAmmount.WithCurrency()
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-right">
+                                    <strong>Discount</strong>
+                                </td>
+                                <td colspan="2">
+                                    <span>
+                                        @Model.Order.Discount.WithCurrency()
+                                    </span>
+                                    @if (Model.Order.Promo != null)
+                                    {
+                                        <div class="alert alert-success mb-0 mt-1" role="alert">
+                                            @string.Format("Promo Applied '{0}'.", Model.Order.Promo.Code)
+                                        </div>
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-right">
+                                    <strong>Delivery Charges</strong>
+                                </td>
+                                <td colspan="2">
+                                    <span>
+                                        @Model.Order.DeliveryCharges.WithCurrency()
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-right">
+                                    <strong>Final Amount</strong>
+                                </td>
+                                <td colspan="2">
+                                    <span>
+                                        @Model.Order.FinalAmmount.WithCurrency()
+                                    </span>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header" id="headingThree">
+                <h2 class="mb-0">
+                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#shippingDetails">
+                        Customer and Shipping Details
+                    </button>
+                </h2>
+            </div>
+            <div id="shippingDetails" class="collapse" data-parent="#orderTrackingAccordion">
+                <div class="card-body">
+                    <form>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-right">Full Name</label>
+                            <div class="col-sm-10">
+                                <input name="FullName" type="text" class="form-control disabled" value="@Model.Order.CustomerName" disabled>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-right">Email</label>
+                            <div class="col-sm-10">
+                                <input name="Email" type="email" class="form-control disabled" value="@Model.Order.CustomerEmail" disabled>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-right">Phone Number</label>
+                            <div class="col-sm-10">
+                                <input name="PhoneNumber" type="text" class="form-control disabled" value="@Model.Order.CustomerPhone" disabled>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-right">Country</label>
+                            <div class="col-sm-10">
+                                <input name="Country" type="text" value="@Model.Order.CustomerCountry" class="form-control disabled" disabled>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-right">City</label>
+                            <div class="col-sm-10">
+                                <input name="City" type="text" value="@Model.Order.CustomerCity" class="form-control disabled" disabled>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-right">Address</label>
+                            <div class="col-sm-10">
+                                <textarea name="Address" class="form-control disabled" disabled>@Model.Order.CustomerAddress</textarea>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-right">ZipCode</label>
+                            <div class="col-sm-10">
+                                <input name="ZipCode" type="text" value="@Model.Order.CustomerZipCode" class="form-control disabled" disabled>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        @if (Model.Order.OrderHistory != null && Model.Order.OrderHistory.Count > 1)
+        {
+            <div class="card">
+                <div class="card-header" id="headingThree">
+                    <h2 class="mb-0">
+                        <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#orderHistory">
+                            Order History
+                        </button>
+                    </h2>
+                </div>
+                <div id="orderHistory" class="collapse" data-parent="#orderTrackingAccordion">
+                    <div class="card-body">
+                        @foreach (var historyItem in Model.Order.OrderHistory.OrderByDescending(x => x.ModifiedOn))
+                        {
+                            <blockquote class="blockquote">
+                                <p class="mb-0">
+                                    <span class="badge badge-secondary @Html.getCellBackgroundClassByOrderStatus((OrderStatus)historyItem.OrderStatus)">
+                                        @((OrderStatus)historyItem.OrderStatus)
+                                    </span>
+                                    - @historyItem.Note
+                                </p>
+                                <footer class="blockquote-footer">@historyItem.ModifiedOn</footer>
+                            </blockquote>
+
+                            <hr />
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="alert alert-danger" role="alert">
+        Sorry! We can not track your order details.
+    </div>
+}

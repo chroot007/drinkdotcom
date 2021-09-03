@@ -1,0 +1,257 @@
+﻿@{
+    var currentDate = DateTime.Now;
+
+    decimal finalAmount = 0M;
+
+    if (TempData["FinalAmount"] != null)
+    {
+        finalAmount = decimal.Parse(TempData["FinalAmount"].ToString());
+    }
+}
+<div class="alert alert-success" role="alert">
+    Your total bill is @finalAmount.WithCurrency()
+</div>
+<div class="accordion" id="paymentOptions">
+    @if (ConfigurationsHelper.EnableCreditCardPayment)
+    {
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0">
+                    <span class="btn btn-link collapsed" data-toggle="collapse" data-target="#creditCardsContainer" aria-expanded="false">
+                        Pay via Credit Card
+                    </span>
+                    <img src="~/Content/images/site/Major-Credit-Card-Logo-PNG-Clipart.png" class="rounded float-right img-fluid" style="height:40px">
+                </h2>
+            </div>
+            <div id="creditCardsContainer" class="collapse" data-parent="#paymentOptions" style="">
+                <div class="card-body">
+                    <div class="d-flex justify-content-center">
+                        <div class="spinner-border m-5 p-5" role="status" id="creditCardLoader" style="display:none">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
+
+                    <form id="creditCardForm" class="form" role="form" autocomplete="off" method="post">
+                        <div class="form-group">
+                            <label for="CCName">Card Holder's Name</label>
+                            <input type="text" class="form-control" id="CCName" name="CCName" pattern="\w+ \w+.*" title="Card Holder Name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="CCCardNumber">Card Number</label>
+                            <input type="text" class="form-control" id="CCCardNumber" name="CCCardNumber" autocomplete="off" maxlength="20" pattern="\d{16}" title="Credit Card Number" required>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-md-12">Card Expiry Date</label>
+                            <div class="col-md-4">
+                                <select class="form-control" name="CCExpiryMonth" id="CCExpiryMonth" title="Card Expiry Month">
+                                    <option value="01" @(currentDate.Month == 1 ? "selected" : string.Empty)>01</option>
+                                    <option value="02" @(currentDate.Month == 2 ? "selected" : string.Empty)>02</option>
+                                    <option value="03" @(currentDate.Month == 3 ? "selected" : string.Empty)>03</option>
+                                    <option value="04" @(currentDate.Month == 4 ? "selected" : string.Empty)>04</option>
+                                    <option value="05" @(currentDate.Month == 5 ? "selected" : string.Empty)>05</option>
+                                    <option value="06" @(currentDate.Month == 6 ? "selected" : string.Empty)>06</option>
+                                    <option value="07" @(currentDate.Month == 7 ? "selected" : string.Empty)>07</option>
+                                    <option value="08" @(currentDate.Month == 8 ? "selected" : string.Empty)>08</option>
+                                    <option value="09" @(currentDate.Month == 9 ? "selected" : string.Empty)>09</option>
+                                    <option value="10" @(currentDate.Month == 10 ? "selected" : string.Empty)>10</option>
+                                    <option value="11" @(currentDate.Month == 11 ? "selected" : string.Empty)>11</option>
+                                    <option value="12" @(currentDate.Month == 12 ? "selected" : string.Empty)>12</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <select class="form-control" name="CCExpiryYear" id="CCExpiryYear" title="Card Expiry Year">
+                                    @for (int i = currentDate.Year; i < currentDate.Year + 10; i++)
+                                    {
+                                        <option value="@i">@i</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" name="CCCVC" id="CCCVC" autocomplete="off" maxlength="3" pattern="\d{3}" title="Three digits at back of your card" required="" placeholder="CVC">
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="form-group row">
+                            <label class="col-md-12">
+                                <small><i class="fas fa-info-circle mr-1"></i> Rest assured that we do not store your credit card details on our servers.</small>
+                            </label>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-12">
+                                <button type="button" id="submitCreditCard" class="btn btn-success btn-lg btn-block">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    }
+
+    @if (false)
+    {
+        //PayPal payment disabled due to PayPal API changes.
+        //https://developer.paypal.com/docs/release-notes/release-notes-2019/#july
+
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0">
+                    <button class="btn btn-link float-left collapsed" type="button" data-toggle="collapse" data-target="#paypalContainer" aria-expanded="false">
+                        Pay via PayPal
+                    </button>
+                    <img src="~/Content/images/site/PayPal-Logo.png" class="rounded float-right img-fluid" style="height:40px">
+                </h2>
+            </div>
+            <div id="paypalContainer" class="collapse" data-parent="#paymentOptions" style="">
+                <div class="card-body">
+                    Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (ConfigurationsHelper.EnableCashOnDeliveryMethod)
+    {
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0">
+                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#cashOnDeliveryContainer" aria-expanded="false">
+                        Pay via Cash on Delivery
+                    </button>
+                    <img src="~/Content/images/site/cash-on-delivery.png" class="rounded float-right img-fluid" style="height:40px">
+                </h2>
+            </div>
+            <div id="cashOnDeliveryContainer" class="collapse" data-parent="#paymentOptions" style="">
+                <div class="card-body">
+                    <div class="d-flex justify-content-center">
+                        <div class="spinner-border m-5 p-5" role="status" id="cashOnDeliveryLoader" style="display:none">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <button type="button" id="submitCashOnDelivery" class="btn btn-success btn-lg btn-block">Place Order</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<script>
+    $("#creditCardForm").validate({
+        errorClass: "alert alert-danger",
+        errorElement: "div",
+        rules: {
+            CCName: {
+                required: true,
+            },
+            CCCardNumber: {
+                required: true,
+                number: true
+            },
+            CCExpiryMonth: {
+                required: true,
+            },
+            CCExpiryYear: {
+                required: true,
+            },
+            CCCVC: {
+                required: true,
+                number: true
+            },
+        },
+        messages: {
+            CCName: {
+                required: "Card Holder Name is required."
+            },
+            CCCardNumber: {
+                required: "Card Number is required.",
+                number: "Card Number must be numeric."
+            },
+            CCExpiryMonth: {
+                required: "Card Expiry Month is required.",
+            },
+            CCExpiryYear: {
+                required: "Card Expiry Year is required.",
+            },
+            CCCVC: {
+                required: "CVC number is required.",
+                number: "CVC must be numeric."
+            },
+        },
+        highlight: function (element, errorClass) {
+            $(element).removeClass(errorClass);
+        }
+    });
+
+    $("#submitCreditCard").click(submitOrderFormViaCreditCard);
+    $("#submitCashOnDelivery").click(submitOrderFormViaCashOnDelivery);
+
+    function submitOrderFormViaCreditCard() {
+        if ($("#deliveryInfoForm").valid()) {
+            if ($("#creditCardForm").valid())
+            {
+                $("#creditCardLoader").show();
+                $("#creditCardForm").hide();
+
+                $.ajax({
+                    url: '@Url.PlaceOrder()',
+                    type: "POST",
+                    data: $("#deliveryInfoForm").serialize()  + "&promoID=" + $("#promoID").val() + "&" + $("#creditCardForm").serialize() 
+                })
+                .done(function (response) {
+                    $("#creditCardLoader").hide();
+                    $("#creditCardForm").show();
+
+                    if (response.Success) {
+                        swal("Thanks.", "Your order has been placed. We will notify you via email as soon as your order has been processed. You can also track the progress of your order with your OrderID. ", "success")
+                            .then((value) => {
+                                emptyCart();
+                                window.location.href = "@Url.OrderTrack(orderPlaced:true)" + "&orderid=" + response.Order.ID;
+                            });
+                    }
+                    else {
+                        swal("Errors!", response.Message, "error");
+                    }
+                });
+            }
+            else {
+                swal("Warning!", "Invalid Data!", "warning");
+            }
+        }
+        else {
+            $('a#deliveryInfo', "#checkoutTabs").tab("show");
+        }
+    }
+
+    function submitOrderFormViaCashOnDelivery() {
+        if ($("#deliveryInfoForm").valid()) {
+                $("#cashOnDeliveryLoader").show();
+
+                $.ajax({
+                    url: '@Url.PlaceOrder(isCashOnDelivery:true)',
+                    type: "POST",
+                    data: $("#deliveryInfoForm").serialize() + "&promoID=" + $("#promoID").val()
+                })
+                .done(function (response) {
+                    $("#cashOnDeliveryLoader").hide();
+
+                    if (response.Success) {
+                        swal("Thanks.", "Your order has been placed. We will notify you via email as soon as your order has been processed. You can also track the progress of your order with your OrderID. ", "success")
+                            .then((value) => {
+                                emptyCart();
+                                window.location.href = "@Url.OrderTrack(orderPlaced:true)" + "&orderid=" + response.Order.ID;
+                            });
+                    }
+                    else {
+                        swal("Errors!", response.Message, "error");
+                    }
+                });
+        }
+        else {
+            $('a#deliveryInfo', "#checkoutTabs").tab("show");
+        }
+    }
+
+</script>

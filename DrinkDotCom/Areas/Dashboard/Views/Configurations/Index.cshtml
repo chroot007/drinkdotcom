@@ -1,0 +1,45 @@
+﻿@using DrinkDotCom.Entities
+@model DrinkDotCom.Areas.Dashboard.ViewModels.ConfigurationsListingViewModels
+@{
+    var selectedConfigurationType = Model.ConfigurationType.HasValue ? Model.ConfigurationType.Value : 0;
+}
+
+<div class="row mt-2">
+    <div class="col-lg-12 col-md-12">
+        <h2>Configurations</h2>
+        <hr />
+    </div>
+    <div class="col-md-10">
+        <form action="@Url.ListAction("Configurations")">
+            <div class="input-group mb-3">
+                <input name="searchTerm" type="text" value="@Model.SearchTerm" class="form-control" placeholder="Search">
+                <select class="form-control custom-select" name="configurationType">
+                    <option value="0">Select Configuration Type...</option>
+                    @foreach (var configurationType in Enum.GetValues(typeof(ConfigurationType)).Cast<ConfigurationType>())
+                    {
+                        var selected = (int)configurationType == selectedConfigurationType ? "selected" : string.Empty;
+
+                        <option value="@((int)configurationType)" @selected>@configurationType.ToString()</option>
+                    }
+                </select>
+
+                <button type="submit" class="form-control btn btn-primary"><i class="fas fa-search"></i> Search</button>
+                <a href="@Url.ListAction("Configurations")" role="button" class="form-control btn btn-primary"><i class="fas fa-redo-alt"></i> Reset</a>
+            </div>
+        </form>
+    </div>
+    <div class="col-lg-12" id="listingArea">
+        @{Html.RenderPartial("_Listing", Model);}
+    </div>
+</div>
+
+<div class="modal fade" id="formModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" id="contentArea">
+        </div>
+    </div>
+</div>
+
+<div id="sliderTemplate" style="display:none">
+    @Html.Picture(new Picture(), "image img-thumbnail", "width: 100%", "Home Slider")
+</div>

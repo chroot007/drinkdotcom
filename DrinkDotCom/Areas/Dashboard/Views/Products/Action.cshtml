@@ -1,0 +1,417 @@
+﻿@using DrinkDotCom.Utilities.Code.Commons
+@using System.Collections.Generic
+@using DrinkDotCom.Entities
+@model DrinkDotCom.Areas.Dashboard.ViewModels.ProductActionViewModel
+@{
+    var productSpecificationCount = 0;
+}
+<div class="row mt-2">
+    <div class="col-lg-12 col-md-12">
+        <h2>
+            @Model.PageTitle
+        </h2>
+        <p>
+            @Model.PageDescription
+        </p>
+        <hr />
+    </div>
+    <div class="col-lg-12">
+        <form id="actionForm" method="post">
+            <input type="hidden" name="ID" value="@Model.ID" />
+
+            <div class="form-group">
+                <label>
+                    Category
+                </label>
+                <select class="form-control" name="CategoryID">
+                    @foreach (var category in Model.Categories.OrderBy(x => x.Name))
+                    {
+                        var selected = Model.CategoryID == category.ID ? "selected" : string.Empty;
+                        <option value="@category.ID" @selected>@category.Name</option>
+        }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    Name
+                </label>
+                <input class="form-control" name="Name" value="@Model.Name" />
+            </div>
+
+            <div class="form-group">
+                <label>
+                    Price
+                </label>
+                <input class="form-control" name="Price" value="@Model.Price" />
+            </div>
+
+            <div class="form-group">
+                <label>
+                    Summary
+                </label>
+                <textarea class="form-control" id="Summary" name="Summary" placeholder="Add Summary." rows="3">@Model.Summary</textarea>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    Description
+                </label>
+                <textarea class="form-control" id="Description" name="Description" placeholder="Add Description." rows="10">@Model.Description</textarea>
+            </div>
+
+
+            <div class="form-group">
+                <label>
+                    Product Specifications
+                </label>
+                <div class="input-group">
+                    <input id="SpecificationTitle" type="text" class="form-control" placeholder="Specification Title">
+                    <input id="SpecificationValue" type="text" class="form-control" placeholder="Specification Value">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button" id="addSpecification">Add Specification</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <table class="table table-striped" id="specificationsTable">
+                    <thead>
+                        <tr>
+                            <th scope="col" width="45%">Specification Title</th>
+                            <th scope="col" width="45%">Specification Value</th>
+                            <th scope="col" width="10%">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.ProductSpecifications != null && Model.ProductSpecifications.Count > 0)
+                        {
+            foreach (var specicification in Model.ProductSpecifications)
+            {
+                productSpecificationCount++;
+
+                var specName = string.Format("specification{0}", productSpecificationCount);
+
+                var specificationTitle = specicification.Value.GetSubstringText("", "~");
+                var specificationValue = specicification.Value.GetSubstringText("~", "");
+
+                                <tr id="@specName" class="specificationRow">
+                                    <td class="title" scope="row">@specicification.Title</td>
+                                    <td class="value">@specicification.Value</td>
+                                    <td>
+                                        <input type="hidden" name="@specName" value="@string.Format("{0}~{1}", specicification.Title, specicification.Value)" />
+                                        <button class="btn btn-danger deleteSpecificationButton" type="button" onclick="removeRow(this)">
+                                            Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+
+                        <tr id="noSpecificationRow" style="@(Model.ProductSpecifications == null || Model.ProductSpecifications.Count == 0 ? string.Empty : "display:none")">
+                            <td scope="row" colspan="3">No Specifications</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    Select Pictures
+                </label>
+                <input id="productPictures" class="form-control" type="file" multiple />
+                <div id="picturesArea" class="row m-0 pb-2">
+                    @if (Model.ProductPicturesList != null && Model.ProductPicturesList.Count > 0)
+    {
+        foreach (var picture in Model.ProductPicturesList)
+        {
+                            <div class="card mt-2" style="width:300px;">
+                                <div class="card-body text-center">
+                                    <img class='image card-img-top img-thumbnail' src='@Html.PictureSource(picture.Picture.URL)' data-id="@picture.PictureID" style="width: 250px; height: 250px;" />
+                                </div>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">
+                                        <input type="radio" name="ThumbnailPicture" class="mr-1" value="@picture.PictureID" @(picture.PictureID == Model.ThumbnailPicture ? "checked" : string.Empty)>
+                                        <label>Set as Thumbnail Image</label>
+                                    </li>
+                                </ul>
+                                <div class="card-footer">
+                                    <button type="button" class="btn btn-danger" onclick="removeImage(this)"><i class="fas fa-times mr-1"></i> Remove</button>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+                <input type="hidden" name="ProductPictures" id="pictureIDs" />
+            </div>
+
+            <div class="form-group">
+                <div class="form-check" title="To mark this Product as featured product.">
+                    <input type="checkbox" name="isFeatured" value="true" class="form-check-input" id="isFeatured" @(Model.isFeatured ? "checked" : string.Empty)>
+                    <input type="hidden" name="isFeatured" value="false">
+
+                    <label class="form-check-label" for="isFeatured">
+                        Featured
+                    </label>
+                </div>
+            </div>
+
+            <hr />
+            <div class="form-group">
+
+                @if (Model.ID > 0)
+    {
+                    <button class="btn btn-success" type="button" id="actionButton">
+                        <i class="fas fa-edit mr-1"></i>
+                        Update
+                    </button>
+                    <button class="deleteButton btn btn-danger" type="button" data-id="@Model.ID">
+                        <i class="fas fa-trash-alt mr-1"></i>
+                        Delete
+                    </button>
+                }
+                else
+                {
+                    <button class="btn btn-success" type="button" id="actionButton">
+                        <i class="fas fa-plus mr-1"></i>
+                        Save
+                    </button>
+                }
+                <a class="btn btn-secondary" href="@Url.ListAction("Products")">
+                    <i class="fas fa-angle-double-left mr-1"></i>
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="imageTemplate" style="display:none">
+    <div class="card mt-2" style="width:300px;">
+        <div class="card-body text-center">
+            <img class='image card-img-top img-thumbnail' src='' style="width: 250px; height: 250px;" />
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+                <input type="radio" name="ThumbnailPicture" class="mr-1" value=''>
+                <label>Set as Thumbnail Image</label>
+            </li>
+        </ul>
+        <div class="card-footer">
+            <button type="button" class="btn btn-danger" onclick="removeImage(this)"><i class="fas fa-times mr-1"></i> Remove</button>
+        </div>
+    </div>
+</div>
+
+<script type="text/x-custom-template" id="specificationRow">
+    <tr class="specificationRow new" style="display:none">
+        <td class="title" scope="row"></td>
+        <td class="value"></td>
+        <td>
+            <input type="hidden" name="specification" value="" />
+            <button class="btn btn-danger deleteSpecificationButton" type="button" onclick="removeRow(this)">
+                Delete
+            </button>
+        </td>
+    </tr>
+</script>
+
+<script>
+
+    var productSpecificationCount = @(productSpecificationCount + 1);
+
+    $(document).ready(function () {
+
+        var availableSpecificationTitles = [ @Html.Raw(string.Join(",", (Enum.GetValues(typeof(ProductSpecifications)).Cast<ProductSpecifications>()).Select(x=> string.Format("\"{0}\"", x)))) ];
+
+        $("#SpecificationTitle").autocomplete({
+            source: availableSpecificationTitles
+        });
+
+        CKEDITOR.replace('Description', { height: 700 });
+    });
+
+
+    function removeRow(column) {
+        $(column).parents("tr").remove();
+
+        showHideNoSpecificationsRow();
+    }
+
+    function showHideNoSpecificationsRow() {
+        if ($(".specificationRow").length > 0) {
+            $("#noSpecificationRow").hide();
+        }
+        else {
+            $("#noSpecificationRow").show();
+        }
+    }
+
+    $("#addSpecification").click(function () {
+        var specificationTitle = $("#SpecificationTitle").val();
+        var specificationValue = $("#SpecificationValue").val();
+
+        if (specificationTitle && specificationValue)
+        {
+            $("#specificationsTable tbody").append($("#specificationRow").clone().html());
+
+            var $newRow = $(".new", "#specificationsTable tbody");
+
+            //for display to user
+            $(".title", $newRow).html(specificationTitle);
+            $(".value", $newRow).html(specificationValue);
+
+            //for submitting value
+            $("[name=specification]", $newRow).val(specificationTitle + "~" + specificationValue);
+            $("[name=specification]", $newRow).attr("name", "specification" + productSpecificationCount);
+            $newRow.attr("id", "specification" + productSpecificationCount);
+            $newRow.removeClass("new");
+
+            //show this new specification
+            $newRow.show();
+
+            //for new specification
+            productSpecificationCount++;
+
+            //reset inputs
+            $("#SpecificationTitle").val("");
+            $("#SpecificationValue").val("");
+
+            showHideNoSpecificationsRow();
+        }
+    });
+
+ $("#actionForm").validate({
+        errorClass: "alert alert-danger",
+        errorElement: "div",
+        rules: {
+            Name: {
+                required: true,
+                minlength: 2,
+                maxlength: 150
+            },
+            CategoryID: {
+                required: true,
+            },
+            Description: {
+                required: true,
+                minlength: 5
+            },
+            Price: {
+                required: true,
+                range: [0.1, 10000000]
+            },
+            ProductPictures: {
+                required: false,
+            },
+        },
+        messages: {
+            Name: {
+                required: "Name is required.",
+                minlength: "Minimum Length is 2.",
+                maxlength: "Maximum Length is 150."
+            },
+            CategoryID: {
+                required: "Please select a category."
+            },
+            
+            Description: {
+                required: "Description is required.",
+                minlength: "Minimum Length is 5.",
+            },
+            Price: {
+                required: "Price is required.",
+                range: "Price must be between 0.1 to 10000000.",
+            },
+          
+        },
+        highlight: function (element, errorClass) {
+            $(element).removeClass(errorClass);
+        }
+    });
+
+    $("#productPictures").change(function () {
+
+		var pictures = this.files;
+
+		var picsData = new FormData();
+
+		for (var i = 0; i < pictures.length; i++) {
+			picsData.append("Picture", pictures[i]);
+		}
+
+		$.ajax({
+			url: "@Url.Action("UploadPictures", "Shared", new { area = "" })",
+			type: "post",
+			data: picsData,
+			dateType: "json",
+			processData: false,
+			contentType: false
+		})
+		.done(function (responses) {
+			for (var i = 0; i < responses.length; i++) {
+				var picResponse = responses[i];
+
+				AttachNewImage(picResponse.pictureURL, picResponse.ID);
+			}
+		});
+    });
+
+    function AttachNewImage(imageURL, imageID) {
+        var $newimgHTML = $("#imageTemplate").clone();
+
+        $newimgHTML.find(".image").attr("src", "/content/images/" + imageURL);
+        $newimgHTML.find(".image").attr("data-id", imageID);
+        $newimgHTML.find("input[name=ThumbnailPicture]").val(imageID);
+
+        $("#picturesArea").append($newimgHTML.html());
+    }
+
+    $("#actionButton").click(function () {
+        updateEditFields();
+
+        var imageIDs = [];
+        $("#picturesArea .image").each(function () {
+            var imageID = $(this).attr("data-id");
+
+            imageIDs.push(imageID);
+        });
+        $("#pictureIDs").val(imageIDs.join());
+
+        if ($("#actionForm").valid()) {
+            $("#actionForm").submit()
+        }
+    });
+
+    $(".deleteButton").click(function () {
+        var recordID = $(this).attr("data-id");
+
+        swal({
+			title: "Are you sure you want to delete this record?",
+			icon: "warning",
+			buttons: true,
+			dangerMode: true,
+		})
+		.then((willDelete) => {
+			if (willDelete) {
+				$("#dtLoader").show();
+				$("#response-holder").hide();
+
+				$.ajax({
+					url: "@Url.DeleteAction("Products")",
+                    type: "post",
+                    data: { id: recordID }
+				})
+                .done(function (response) {
+                    if (response != null && response.Success != undefined && response.Success) {
+                        window.location.href = "@Url.ListAction("Products")";
+				    }
+				    else {
+                        swal("Error!", response.Message, "error");
+				    }
+				});
+			}
+		});
+    });
+
+</script>

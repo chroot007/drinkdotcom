@@ -1,0 +1,157 @@
+﻿@model DrinkDotCom.ViewModels.ProfileDetailsViewModel
+
+@if (Model != null && Model.User != null)
+{
+    <form id="frmUserInfo">
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label text-right">Full Name</label>
+            <div class="col-sm-9">
+                <input name="FullName" type="text" class="form-control" value="@Model.User.FullName" required>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label text-right">Email</label>
+            <div class="col-sm-9">
+                <input name="Email" type="email" class="form-control" value="@Model.User.Email" required>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label text-right">Username</label>
+            <div class="col-sm-9">
+                <input name="Username" type="text" class="form-control" value="@Model.User.UserName" required>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label text-right">Date of Birth</label>
+            <div class="col-sm-9">
+                <input name="Username" type="date" class="form-control" value="@Model.User.Dateofbirth" required>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label text-right">Phone Number</label>
+            <div class="col-sm-9">
+                <input name="PhoneNumber" type="text" class="form-control" value="@Model.User.PhoneNumber">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label text-right">Country</label>
+            <div class="col-sm-9">
+                <input name="Country" type="text" value="@Model.User.Country" class="form-control">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label text-right">City</label>
+            <div class="col-sm-9">
+                <input name="City" type="text" value="@Model.User.City" class="form-control">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label text-right">Address</label>
+            <div class="col-sm-9">
+                <textarea name="Address" class="form-control">@Model.User.Address</textarea>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label text-right">Zip Code</label>
+            <div class="col-sm-9">
+                <input name="ZipCode" type="text" value="@Model.User.ZipCode" class="form-control">
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="offset-sm-3 col-sm-9">
+                <button id="btnUpdate" type="button" class="btn btn-success"><i class="fas fa-edit mr-1"></i> Update</button>
+            </div>
+        </div>
+    </form>
+}
+
+<script>
+    $("#frmUserInfo").validate({
+        errorClass: "alert alert-danger",
+        errorElement: "div",
+        rules: {
+            FullName: {
+                required: true,
+                minlength: 3,
+                maxlength: 25
+            },
+            Email: {
+                email: true,
+                required: true,
+            },
+            Username: {
+                required: true,
+
+            },
+            Birthdate: {
+                required: true,
+                birthdate: true,
+                minAge : true,
+            },
+            Country: {
+                required: true,
+            },
+            City: {
+                required: true,
+            },
+            Address: {
+                required: true,
+            },
+        },
+        messages: {
+            FullName: {
+                required: "Full Name is required.",
+                minlength: "Minimum Length is 3.",
+                maxlength: "Maximum Length is 25."
+            },
+            Email: {
+                email: "Provide a valid email address.",
+                required: "Email is required.",
+            },
+            Username: {
+                required: "Username is required.",
+            },
+            Birthdate: {
+                birthdate: "Provide a valid date of birth.",
+                required: "Date of birth is required",
+                minAge: "The minimum age is 21."
+            },
+            Country: {
+                required: "Country is required.",
+            },
+            City: {
+                required: "City is required.",
+            },
+            Address: {
+                required: "Address is required.",
+            },
+        },
+        highlight: function (element, errorClass) {
+            $(element).removeClass(errorClass);
+        }
+    });
+
+    $("#btnUpdate").click(function () {
+        if ($("#frmUserInfo").valid()) {
+                $("#dtLoader").show();
+                $("#response-holder").hide();
+
+                $.ajax({
+                    url: "@Url.UpdateProfile()",
+                    method: "post",
+                    data: $("#frmUserInfo").serialize()
+                })
+                .done(function (response) {
+                    $("#dtLoader").hide();
+                    $("#response-holder").show();
+
+                    if (response.Success) {
+                        swal("Success!", "User info updated.", "success");
+                    }
+                    else {
+                        swal("Error!", response.Message, "error");
+                    }
+                });
+            }
+		});
+</script>

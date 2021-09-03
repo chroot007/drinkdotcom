@@ -1,0 +1,22 @@
+﻿<section>
+        <div class="container">
+            <h3>Google Map</h3>
+            <form method="post">
+                <fieldset>
+                    <div>
+                        <label for="address">Address:</label>
+                        <input style="width: 300px" type="text" name="address" value="@Request["address"]" />
+                        <input type="submit" value="Map It!" />
+                    </div>
+                </fieldset>
+            </form>
+            @if (IsPost)
+            {
+                @Maps.GetGoogleHtml(Request.Form["address"],
+                    width: "400",
+                    height: "400")
+            }
+
+        </div>
+
+</section>

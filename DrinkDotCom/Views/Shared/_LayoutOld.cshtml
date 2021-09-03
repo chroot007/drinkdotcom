@@ -1,0 +1,84 @@
+﻿@model DrinkDotCom.ViewModels.PageViewModel
+@{
+	var baseModel = Model;
+
+	if (baseModel == null)
+	{
+		baseModel = new DrinkDotCom.ViewModels.PageViewModel();
+	}
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>@string.Format("{0} {1} {2}", baseModel.PageTitle, string.IsNullOrEmpty(baseModel.PageTitle) ? "" : "-", ConfigurationsHelper.ApplicationName).Replace("  ", " ").Trim()</title>
+    <meta name="description" content="@baseModel.PageDescription">
+    <meta property="og:title" content="@string.Format("{0} {1} {2}", baseModel.PageTitle, string.IsNullOrEmpty(baseModel.PageTitle) ? "" : "-", ConfigurationsHelper.ApplicationName).Replace("  ", " ").Trim()" />
+    <meta property="og:description" content="@baseModel.PageDescription" />
+    <meta property="og:url" content="@baseModel.PageURL" />
+    <meta property="og:image" content="@baseModel.PageImageURL" />
+    <meta property="og:type" content="website" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@ConfigurationsHelper.TwitterUsername" />
+    <meta name="twitter:creator" content="@ConfigurationsHelper.TwitterUsername" />
+
+    @foreach (var canonicalURL in baseModel.PageCanonicalURLs)
+    {
+        <link rel="canonical" href="@canonicalURL" />
+    }
+
+    <meta name="robots" content="index, follow" />
+
+    <!--CSS custom styles-->
+    <link href="~/Content/css/site.css" rel="stylesheet">
+
+    <!--jQuery-->
+    <script src="~/Scripts/jquery-3.4.1.min.js"></script>
+
+    <!--Popper.js (required by bootstrap)-->
+    @*<script src="~/Scripts/popper.min.js"></script>*@
+
+    <!--Bootstrap-->
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <script src="~/Scripts/bootstrap.min.js"></script>
+
+    <!--jQuery UI-->
+    <script src="~/Scripts/jquery-ui-1.12.1.min.js"></script>
+
+    <!--jQuery Validation-->
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+
+    <!-- jQuery Cookie-->
+    <script src="~/Scripts/jquery.cookie-1.4.1.min.js"></script>
+
+    <!--Fontawesome fonts-->
+    <link href="~/Content/vendor/fontawesome-free-5.9.0-web/css/all.min.css" rel="stylesheet" />
+
+    <!--SweetAlert-->
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+    <script src="~/Content/js/site.js"></script>
+</head>
+<body>
+
+    @{Html.RenderPartial("_TopMenu");}
+
+    <div class="container pt-2">
+        @RenderBody()
+    </div>
+
+    <input type="hidden" id="cartProducts" value="@Url.CartProducts()" />
+
+    @{Html.RenderPartial("_Footer");}
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-143244521-1"></script>
+    <script src="~/Content/js/google-analytics.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,149 @@
+﻿@model DrinkDotCom.ViewModels.ProductDetailsViewModel
+
+<link href="~/Content/vendor/drift/drift-basic.min.css" rel="stylesheet" />
+<script src="~/Content/vendor/drift/Drift.min.js"></script>
+
+<div class="product_image_area mt-2">
+    <div class="container">
+        <div class="row s_product_inner">
+            <div class="col-lg-6">
+                @if (Model.Product.ProductPictures != null && Model.Product.ProductPictures.Count > 0)
+                {
+                    var i = 0;
+                    var firstProductPicture = Model.Product.ProductPictures.First();
+
+                    <div id="carouselIndicators" class="carousel slide" data-ride="carousel">
+                        <ol class="carousel-indicators product-carousel-indicators">
+                            @foreach (var picture in Model.Product.ProductPictures)
+                            {
+                                var active = picture == firstProductPicture ? "active" : string.Empty;
+
+                                <li class="@active" data-target="#carouselIndicators" data-slide-to="@i"></li>
+
+                                i++;
+                            }
+                        </ol>
+                        <div class="carousel-inner product-carousel-inner" role="listbox">
+                            @{
+                                var j = 0;
+                            }
+                            @foreach (var productPicture in Model.Product.ProductPictures)
+                            {
+                                j++;
+
+                                var active = productPicture == firstProductPicture ? "active" : string.Empty;
+
+                                <div class="carousel-item @active text-center">
+                                    @Html.PictureWithZoomAttribute(productPicture.Picture, "product-slider-img img-fluid", alt: Model.Product.Name, id: string.Format("imgZoom{0}", j))
+                                </div>
+                            }
+                        </div>
+                        <a class="carousel-control-prev product-carousel-prev" href="#carouselIndicators" role="button" data-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Previous</span>
+                        </a>
+                        <a class="carousel-control-next product-carousel-next" href="#carouselIndicators" role="button" data-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Next</span>
+                        </a>
+                    </div>
+                }
+            </div>
+            <div class="col-lg-5 offset-lg-1" id="productSummaryContainer">
+                <div class="s_product_text">
+                    <h3>
+                        @Model.Product.Name
+                    </h3>
+                    <h2>
+                        @Model.Product.Price.WithCurrency()
+                    </h2>
+                    <ul class="list">
+                        @if (Model.Product.Category != null)
+                        {
+                            <li>
+                                <a class="active" href="@Url.SearchProducts(Model.Product.Category.SanitizedName)"><span>Category</span> : @Model.Product.Category.Name</a>
+                            </li>
+                        }
+                        <li>
+                            <a href="#"><span>Availibility</span> : In Stock</a>
+                        </li>
+                    </ul>
+                    <p>
+                        @Model.Product.Summary
+                    </p>
+                    <div class="input-group itemCartHolder">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">Quantity</span>
+                        </div>
+                        <input type="number" class="form-control productQuantity ismobile" value="1" min="1" max="100" title="Quantity">
+                        <div class="input-group-append">
+                            <button data-id="@Model.Product.ID" type="button" class="noZButton btnAddToCart btn btn-primary" title="Add to Cart">
+                                <i class="fas fa-shopping-cart mr-1"></i>
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<section class="product_description_area">
+    <div class="container">
+        <ul class="nav nav-tabs" id="productDetailsTab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link" id="home-tab" data-toggle="tab" href="#description" role="tab">Product Description</a>
+            </li>
+            @if (Model.Product.ProductSpecifications != null && Model.Product.ProductSpecifications.Count > 0)
+            {
+                <li class="nav-item">
+                    <a class="nav-link" id="profile-tab" data-toggle="tab" href="#specification" role="tab">Product Specification</a>
+                </li>
+            }
+            <li class="nav-item">
+                <a class="nav-link active" id="review-tab" data-toggle="tab" href="#reviews" role="tab">Product Reviews</a>
+            </li>
+        </ul>
+        <div class="tab-content" id="productDetailsTabContent">
+            <div class="tab-pane fade" id="description" role="tabpanel">
+                @Html.Raw(Model.Product.Description)
+            </div>
+            @if (Model.Product.ProductSpecifications != null && Model.Product.ProductSpecifications.Count > 0)
+            {
+                <div class="tab-pane fade" id="specification" role="tabpanel">
+                    @{ Html.RenderPartial("_ProductSpecifications"); }
+                </div>
+            }
+            <div class="tab-pane fade show active" id="reviews" role="tabpanel">
+                @{ Html.RenderPartial("_ProductComments"); }
+            </div>
+        </div>
+    </div>
+</section>
+<hr />
+@{Html.RenderAction("RelatedProducts", "Products", new { categoryID = Model.Product.CategoryID });}
+
+<script>
+    if ($("#imgZoom1").length > 0) {
+        applyDriftOnElement("#imgZoom1");
+    }
+
+    $('#carouselIndicators').on('slide.bs.carousel', function onSlide(ev) {
+        var elemID = $("img", ev.relatedTarget).attr("id");
+
+        if (elemID) {
+            applyDriftOnElement("#"+ elemID);
+        }
+    })
+
+    function applyDriftOnElement(elemID) {
+        if (!$(elemID).hasClass("drifted")) {
+            $(elemID).addClass("drifted");
+            new Drift(document.querySelector(elemID), {
+                paneContainer: document.querySelector('#productSummaryContainer'),
+                hoverBoundingBox: true,
+            });
+        }
+    }
+
+</script>

@@ -1,0 +1,152 @@
+﻿@model DrinkDotCom.Areas.Dashboard.ViewModels.CategoryActionViewModel
+
+<div class="row mt-2">
+    <div class="col-lg-12 col-md-12">
+        <h2>
+            @Model.PageTitle
+        </h2>
+        <p>
+            @Model.PageDescription
+        </p>
+        <hr />
+    </div>
+    <div class="col-lg-12">
+        <form id="actionForm" method="post">
+            <input type="hidden" name="ID" value="@Model.ID" />
+
+            <div class="form-group">
+                <label>
+                     Category
+                </label>
+                <select class="form-control" name="ParentCategoryID">
+                    <option value="0">- None -</option>
+                    @foreach (var category in Model.Categories.Where(x => x.ID != Model.ID))
+                    {
+                        var selected = Model.ParentCategoryID == category.ID ? "selected" : string.Empty;
+                        <option value="@category.ID" @selected>@category.Name</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    Name
+                </label>
+                <input class="form-control" name="Name" value="@Model.Name" />
+            </div>
+
+            <div class="form-group">
+                <label>
+                    Description
+                </label>
+                <textarea class="form-control" name="Description" placeholder="Add Description." rows="3">@Model.Description</textarea>
+            </div>
+
+            <div class="form-group">
+                <div class="form-check">
+                    <input type="checkbox" name="isFeatured" value="true" class="form-check-input" id="isFeatured" @(Model.isFeatured ? "checked" : string.Empty)>
+                    <input type="hidden" name="isFeatured" value="false">
+
+                    <label class="form-check-label" for="isFeatured">
+                        Featured
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+
+                @if (Model.ID > 0)
+                {
+                    <button class="btn btn-success" type="button" id="actionButton">
+                        <i class="fas fa-edit mr-1"></i>
+                        Update
+                    </button>
+                    <button class="deleteButton btn btn-danger" type="button" data-id="@Model.ID">
+                        <i class="fas fa-trash-alt mr-1"></i>
+                        Delete
+                    </button>
+                }
+                else
+                {
+                    <button class="btn btn-success" type="button" id="actionButton">
+                        <i class="fas fa-plus mr-1"></i>
+                        Save
+                    </button>
+                }
+                <a class="btn btn-secondary" href="@Url.ListAction("Categories")">
+                    <i class="fas fa-angle-double-left mr-1"></i>
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+  $("#actionForm").validate({
+		errorClass: "alert alert-danger",
+		errorElement: "div",
+		rules: {
+			Name: {
+				required: true,
+				minlength: 3,
+				maxlength: 150
+			},
+			Description: {
+				required: true,
+				minlength:5 
+			}
+		},
+		messages: {
+			Name: {
+				required: "Name is required.",
+				minlength: "Minimum Length is 3.",
+				maxlength: "Maximum Length is 150."
+			},
+			Description: {
+				required: "Description is required.",
+				minlength: "Minimum Length is 5.",
+			}
+		},
+		highlight: function (element, errorClass) {
+			$(element).removeClass(errorClass);
+		}
+	});
+
+    $("#actionButton").click(function () {
+        if ($("#actionForm").valid()) {
+            $("#actionForm").submit()
+        }
+    });
+
+    $(".deleteButton").click(function () {
+        var recordID = $(this).attr("data-id");
+
+        swal({
+			title: "Are you sure you want to delete this record?",
+			icon: "warning",
+			buttons: true,
+			dangerMode: true,
+		})
+		.then((willDelete) => {
+			if (willDelete) {
+				$("#dtLoader").show();
+				$("#response-holder").hide();
+
+				$.ajax({
+					url: "@Url.DeleteAction("Categories")",
+                    type: "post",
+                    data: { id: recordID }
+				})
+                .done(function (response) {
+                    if (response != null && response.Success != undefined && response.Success) {
+                        window.location.href = "@Url.ListAction("Categories")";
+				    }
+				    else {
+                        swal("Error!", response.Message, "error");
+				    }
+				});
+			}
+		});
+    });
+
+</script>

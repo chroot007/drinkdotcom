@@ -1,0 +1,90 @@
+﻿@model DrinkDotCom.Areas.Dashboard.ViewModels.RolesListingViewModel
+
+@if (Model != null && Model.Roles != null && Model.Roles.Count > 0)
+{
+    <table class="table table-hover">
+        <thead class="thead-light">
+            <tr>
+                <th>
+                    Role
+                </th>
+                <th>
+                    Users
+                </th>
+                <th>
+                    Actions
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var role in Model.Roles)
+            {
+                <tr>
+                    <td>
+                        @role.Name
+                    </td>
+                    <td>
+                        <a href="@Url.Users(roleID: role.Id)">@role.Users.Count</a>
+                    </td>
+                    <td>
+                        <a href="@Url.RoleDetails(role.Id)" class="btn btn-primary" data-id="@role.Id">
+                            <i class="fas fa-user-shield mr-1"></i>
+                            More Details
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    if (Model.Pager != null && Model.Pager.TotalPages > 1)
+    {
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-center">
+
+                @if (Model.Pager.CurrentPage == 1)
+                {
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#">Previous</a>
+                    </li>
+                }
+                else
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.ListAction("Roles", Model.SearchTerm, Model.Pager.CurrentPage - 1)">Previous</a>
+                    </li>
+                }
+
+                @for (int page = Model.Pager.StartPage; page < Model.Pager.EndPage + 1; page++)
+                {
+                    var active = page == Model.Pager.CurrentPage ? "active" : string.Empty;
+
+                    <li class="page-item @active">
+                        <a class="page-link" href="@Url.ListAction("Roles", Model.SearchTerm, page)">
+                            @page
+                        </a>
+                    </li>
+                }
+
+                @if (Model.Pager.CurrentPage == Model.Pager.EndPage)
+                {
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#">Next</a>
+                    </li>
+                }
+                else
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.ListAction("Roles", Model.SearchTerm, Model.Pager.CurrentPage + 1)">Next</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+}
+else
+{
+    <div class="alert alert-warning" role="alert">
+        No roles found.
+    </div>
+}

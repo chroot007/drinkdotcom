@@ -1,0 +1,94 @@
+﻿@model DrinkDotCom.ViewModels.ProfileDetailsViewModel
+
+@if (Model != null && Model.User != null)
+{
+    <section class="blog-banner-area">
+        <div class="container h-100">
+            <div class="blog-banner">
+                <div class="text-center">
+                    <h2>@Model.PageTitle</h2>
+                    <h4>
+                        @Model.PageDescription
+                    </h4>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-margin--small">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3">
+                    <div class="card">
+                        @Html.UserAvatar(Model.User.Picture, "card-img-top", "width: 100%", "User Avatar")
+                        <div class="card-body">
+                            <h5 class="card-title m-0">
+                                @Model.User.FullName
+                            </h5>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item" title="Username">
+                                <i class="fas fa-user-alt mr-1"></i>
+                                @Model.User.UserName
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-9">
+                    <div class="card">
+                        <div class="card-header">
+                            <ul class="nav nav-tabs card-header-tabs">
+                                <li class="nav-item">
+                                    <a class="user-link nav-link active pointerCursor" data-href="@Url.UserProfile()">Info</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="user-link nav-link pointerCursor" data-href="@Url.ChangePassword()">Change Password</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="user-link nav-link pointerCursor" data-href="@Url.ChangeAvatar()">Change Avatar</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="user-link nav-link pointerCursor" data-href="@Url.UserOrders()">Orders</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="user-link nav-link pointerCursor" data-href="@Url.Comments(userID: Model.User.Id)">Comments</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-center">
+                                <div class="spinner-border m-5" role="status" id="dtLoader" style="display:none">
+                                    <span class="sr-only">Loading...</span>
+                                </div>
+                            </div>
+                            <div id="response-holder">
+                                @{ Html.RenderPartial("_UserProfile", Model); }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+<script>
+    $(".user-link").click(function () {
+        var url = $(this).attr("data-href");
+
+        if (url != undefined && url != "") {
+            $("#dtLoader").show();
+            $("#response-holder").html("");
+
+            $(".user-link").removeClass("active");
+            $(this).addClass("active");
+
+            $.ajax({
+                url: url,
+            })
+            .done(function (response) {
+                $("#dtLoader").hide();
+                $("#response-holder").html(response);
+            });
+        }
+    });
+</script>

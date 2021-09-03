@@ -1,0 +1,45 @@
+﻿@using DrinkDotCom.Entities
+@model DrinkDotCom.ViewModels.UserOrdersViewModel
+
+<div class="row mt-2">
+    <div class="col-md-12">
+        <form id="searchUserOrdersForm">
+            <div class="input-group mb-3">
+                <input name="orderid" type="text" value="@Model.OrderID" class="form-control" placeholder="Search by OrderID">
+                <select class="form-control custom-select" name="orderStatus">
+                    <option value="0">Select by Order Status...</option>
+                    @foreach (var orderStatus in Enum.GetValues(typeof(OrderStatus)).Cast<OrderStatus>())
+                    {
+                        var selected = (int)orderStatus == Model.OrderStatus ? "selected" : string.Empty;
+
+                        <option value="@((int)orderStatus)" @selected>@orderStatus.ToString()</option>
+                    }
+                </select>
+                <button type="button" id="searchUserOrdersButton" class="form-control btn btn-primary"><i class="fas fa-search"></i> Search</button>
+                <a data-href="@Url.OrdersByEmail(Model.UserEmail)" role="button" class="datalink text-white form-control btn btn-primary"><i class="fas fa-redo-alt"></i> Reset</a>
+            </div>
+        </form>
+    </div>
+    <div class="col-lg-12">
+        @{Html.RenderPartial("_EmailOrdersListing", Model);}
+    </div>
+</div>
+
+<script>
+
+    $("#searchUserOrdersButton").click(function () {
+		$("#dtLoader").show();
+		$("#response-holder").hide();
+
+		$.ajax({
+			url: "@Url.OrdersByEmail(Model.UserEmail)",
+			method: "post",
+            data: $("#searchUserOrdersForm").serialize()
+		})
+		.done(function (response) {
+            $("#response-holder").html(response);
+            $("#dtLoader").hide();
+            $("#response-holder").show();
+		});
+	});
+</script>

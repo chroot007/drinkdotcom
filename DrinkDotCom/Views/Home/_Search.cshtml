@@ -1,0 +1,110 @@
+﻿@using DrinkDotCom.Entities
+@using ClassLibrary
+@model DrinkDotCom.ViewModels.ProductsViewModel
+
+@if (Model.Products != null && Model.Products.Count > 0)
+{
+    <div class="row">
+        @foreach (var product in Model.Products)
+        {
+            var thumbnail = new Picture();
+
+            if (product.ProductPictures != null && product.ProductPictures.Count > 0)
+            {
+                var selectedThumbnail = product.ProductPictures.FirstOrDefault(x => x.PictureID == product.ThumbnailPictureID);
+
+                thumbnail = selectedThumbnail != null ? selectedThumbnail.Picture : product.ProductPictures.FirstOrDefault().Picture;
+            }
+
+            <div class="col-md-6 col-lg-4">
+                <div class="card text-center card-product">
+                    <div class="card-product__img">
+                        <a href="@Url.ProductDetails(product.Category.SanitizedName, product.ID)">
+                            @Html.Picture(thumbnail, "card-img", alt: product.Name)
+                        </a>                        
+                        <ul class="card-product__imgOverlay">
+                            <li><button class="link-button" data-href="@Url.ProductDetails(product.Category.SanitizedName, product.ID)"><i class="fas fa-link"></i></button></li>
+                            <li><button class="btnAddToCart" data-id="@product.ID"><i class="fas fa-shopping-cart"></i></button></li>
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        <p>
+                            <a href="@Url.SearchProducts(product.Category.SanitizedName)" class="card-link">
+                                @product.Category.Name
+                            </a>
+                        </p>
+                        <h4 class="card-product__title">
+                            <a href="@Url.ProductDetails(product.Category.SanitizedName, product.ID)">
+                                @product.Name
+                            </a>
+                        </h4>
+                        <p class="card-product__price">
+                            @product.Price.WithCurrency()
+                        </p>
+                    </div>
+                </div>
+            </div>
+        }
+        @if (Model.Pager != null && Model.Pager.TotalPages > 1)
+        {
+            <div class="col-lg-12">
+                <div class="pageination">
+                    <nav>
+                        <ul class="pagination justify-content-center">
+                            @if (Model.Pager.CurrentPage == 1)
+                            {
+                                <li class="page-item disabled">
+                                    <a class="page-link disabled" href="#" aria-label="Previous">
+                                        <i class="fas fa-angle-double-left"></i>
+                                    </a>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.SearchProducts(Model.CategoryName, Model.SearchTerm, pageNo: Model.Pager.CurrentPage - 1, from: Model.PriceFrom, to: Model.PriceTo, pageSize: Model.PageSize)">
+                                        <i class="fas fa-angle-double-left"></i>
+                                    </a>
+                                </li>
+                            }
+
+                            @for (int page = Model.Pager.StartPage; page < Model.Pager.EndPage + 1; page++)
+                            {
+                                var active = page == Model.Pager.CurrentPage ? "active" : string.Empty;
+
+                                <li class="page-item @active">
+                                    <a class="page-link" href="@Url.SearchProducts(Model.CategoryName, Model.SearchTerm, pageNo: page, from: Model.PriceFrom, to: Model.PriceTo, pageSize: Model.PageSize)">
+                                        @page
+                                    </a>
+                                </li>
+                            }
+
+                            @if (Model.Pager.CurrentPage == Model.Pager.EndPage)
+                            {
+                                <li class="page-item disabled">
+                                    <a class="page-link disabled">
+                                        <i class="fas fa-angle-double-right"></i>
+                                    </a>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.SearchProducts(Model.CategoryName, Model.SearchTerm, pageNo: Model.Pager.CurrentPage + 1, from: Model.PriceFrom, to: Model.PriceTo, pageSize: Model.PageSize)">
+                                        <i class="fas fa-angle-double-right"></i>
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        }
+    </div>   
+}
+else
+{
+    <div class="alert alert-warning m-0" role="alert">
+        Sorry. No Products found.
+    </div>
+}

@@ -1,0 +1,130 @@
+﻿@model DrinkDotCom.ViewModels.DeliveryInfoViewModel
+
+@if (Model != null && Model.User != null)
+{
+    @Html.AntiForgeryToken()
+    @*@Html.ValidationSummary(true)*@
+    <form id="deliveryInfoForm">
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label text-right">Full Name</label>
+            <div class="col-sm-10">
+                <input name="FullName" type="text" class="form-control" value="@Model.User.FullName" required>
+
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label text-right">Email</label>
+            <div class="col-sm-10">
+                <input name="Email" type="email" class="form-control" value="@Model.User.Email" required>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label text-right">Phone Number</label>
+            <div class="col-sm-10">
+                <input name="PhoneNumber" type="text" class="form-control" value="@Model.User.PhoneNumber">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label text-right">Country</label>
+            <div class="col-sm-10">
+                <input name="Country" type="text" value="@Model.User.Country" class="form-control">
+
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label text-right">City</label>
+            <div class="col-sm-10">
+                <input name="City" type="text" value="@Model.User.City" class="form-control">
+                @Html.ValidationMessageFor(model => model.User.City)
+
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label text-right">Address</label>
+            <div class="col-sm-10">
+                <textarea name="Address" class="form-control">@Model.User.Address</textarea>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label text-right">ZipCode</label>
+            <div class="col-sm-10">
+                <input name="ZipCode" type="text" value="@Model.User.ZipCode" class="form-control">
+
+            </div>
+        </div>
+
+        <input type="hidden" name="DataValue" id="dataValue" />
+        <input type="hidden" name="DataDescriptor" id="dataDescriptor" />
+    </form>
+    <div class="form-group row">
+        <div class="offset-sm-2 col-sm-10">
+            <button class="btn btn-success float-right" id="nextConfirmOrderTab" type="button">
+                <i class="fas fa-angle-right mr-1"></i>
+                Next
+            </button>
+        </div>
+    </div>
+}
+
+<script>
+    $("#deliveryInfoForm").validate({
+        ignore: [],
+        errorClass: "alert alert-danger",
+        errorElement: "div",
+        rules: {
+            FullName: {
+                required: true,
+                minlength: 3,
+                maxlength: 25
+            },
+            Email: {
+                email: true,
+                required: true,
+            },
+            Country: {
+                required: true,
+            },
+            City: {
+                required: true,
+            },
+            Address: {
+                required: true,
+            },
+            ZipCode: {
+                required: true,
+            },
+        },
+        messages: {
+            FullName: {
+                required: "Full Name is required.",
+                minlength: "Minimum Length is 3.",
+                maxlength: "Maximum Length is 25."
+            },
+            Email: {
+                email: "Provide a valid email address.",
+                required: "Email is required.",
+            },
+            Country: {
+                required: "Country is required.",
+            },
+            City: {
+                required: "City is required.",
+            },
+            Address: {
+                required: "Address is required.",
+            },
+            ZipCode: {
+                required: "Zip Code is required.",
+            },
+        },
+        highlight: function (element, errorClass) {
+            $(element).removeClass(errorClass);
+        }
+    });
+
+    $("#nextConfirmOrderTab").click(function () {
+        if ($("#deliveryInfoForm").valid()) {
+            $('a#confirmOrder', "#checkoutTabs").tab("show");
+        }
+    });
+</script>

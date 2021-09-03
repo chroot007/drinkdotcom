@@ -1,0 +1,65 @@
+﻿@model DrinkDotCom.Areas.Dashboard.ViewModels.RoleDetailsViewModel
+
+@if (Model != null && Model.Role != null)
+{
+    <div class="row mt-2">
+        <div class="col-lg-12 col-md-12">
+            <h2>Role Details</h2>
+            <hr />
+        </div>
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs">
+                        <li class="nav-item">
+                            <a class="user-link nav-link active" data-href="@Url.RoleDetails(Model.Role.Id)">Info</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="user-link nav-link" data-href="@Url.RoleUsers(Model.Role.Id)">Users</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-center">
+                        <div class="spinner-border m-5" role="status" id="dtLoader" style="display:none">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
+                    <div id="response-holder">
+                        @{
+                            Html.RenderPartial("_RoleDetails", Model);
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+		$(".user-link").click(function () {
+			var url = $(this).attr("data-href");
+
+			if (url != undefined && url != "") {
+				$("#dtLoader").show();
+				$("#response-holder").html("");
+
+				$(".user-link").removeClass("active");
+				$(this).addClass("active");
+
+				$.ajax({
+					url: url,
+				})
+			    .done(function (response) {
+			    	$("#dtLoader").hide();
+			    	$("#response-holder").html(response);
+			    });
+			}
+		});
+    </script>
+}
+else
+{
+    <div class="alert alert-danger" role="alert">
+        No Role found.
+    </div>
+}

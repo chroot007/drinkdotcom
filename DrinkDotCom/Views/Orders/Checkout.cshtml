@@ -1,0 +1,33 @@
+﻿@using Microsoft.AspNet.Identity
+@model DrinkDotCom.ViewModels.CheckoutViewModel
+
+@if (Model != null)
+{
+    <section class="blog-banner-area">
+        <div class="container h-100">
+            <div class="blog-banner">
+                <div class="text-center">
+                    <h1>@Model.PageTitle</h1>
+                    <h4>
+                        @Model.PageDescription
+                    </h4>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="tracking_box_area section-margin--small">
+        <div class="container">
+            <div id="tracking-holder">
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border m-5" role="status" id="dtLoader" style="display:none">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+                <div id="response-holder">
+                    @{Html.RenderPartial("_Checkout", Model);}
+                </div>
+            </div>
+        </div>
+    </section>
+}

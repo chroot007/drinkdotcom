@@ -1,0 +1,45 @@
+﻿@using Microsoft.AspNet.Identity
+@model DrinkDotCom.ViewModels.CheckoutViewModel
+
+@if (Model != null)
+{
+    <div class="card">
+        @if (Model.CartHasProducts)
+        {
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" id="checkoutTabs">
+                    <li class="nav-item">
+                        <a class="nav-item nav-link active" data-toggle="tab" href="#nav-cartitems" id="cartitems" role="tab">Cart Products</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-item nav-link" data-toggle="tab" href="#nav-deliveryInfo" id="deliveryInfo" role="tab">Delivery Info</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-item nav-link" data-toggle="tab" href="#nav-confirmOrder" id="confirmOrder" role="tab">Confirm</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="nav-tabContent">
+                    <div class="tab-pane fade show active" id="nav-cartitems" role="tabpanel">
+                        @{ Html.RenderAction("CartItems", "Orders", new { area = "", promoCode = Model.PromoCode }); }
+                    </div>
+                    <div class="tab-pane fade" id="nav-deliveryInfo" role="tabpanel">
+                        @{ Html.RenderAction("DeliveryInfo", new { area = "" }); }
+                    </div>
+                    <div class="tab-pane fade" id="nav-confirmOrder" role="tabpanel">
+                        @{ Html.RenderAction("ConfirmOrder", new { area = "" }); }
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="card-body">
+                <div class="alert alert-warning mb-0" role="alert">
+                    No products in the cart. Please add some products in cart.
+                </div>
+            </div>
+        }
+    </div>
+}

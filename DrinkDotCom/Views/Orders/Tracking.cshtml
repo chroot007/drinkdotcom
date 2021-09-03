@@ -1,0 +1,43 @@
+﻿@using Microsoft.AspNet.Identity
+@using DrinkDotCom.Entities
+@model DrinkDotCom.ViewModels.TrackOrderViewModel
+
+@if (Model != null)
+{
+    <section class="blog-banner-area">
+        <div class="container h-100">
+            <div class="blog-banner">
+                <div class="text-center">
+                    <h1>@Model.PageTitle</h1>
+                    <h4>
+                        @Model.PageDescription
+                    </h4>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="tracking_box_area section-margin--small">
+        <div class="container">
+            <div class="">
+                <form method="get" action="@Url.OrderTrack()">
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">Order ID</span>
+                        </div>
+                        <input type="text" name="orderID" class="form-control" placeholder="Enter Order ID" value="@Model.OrderID" required>
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="submit">Track Order</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div id="tracking-holder">
+                @if (Model.OrderID.HasValue)
+                {
+                    Html.RenderPartial("_TrackOrder");
+                }
+            </div>
+        </div>
+    </section>
+}

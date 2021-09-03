@@ -1,0 +1,222 @@
+﻿@using DrinkDotCom.Entities
+@using ClassLibrary.Enums
+@model DrinkDotCom.ViewModels.ProductsViewModel
+
+@{ 
+    var priceRangeFrom = 0;
+    var priceRangeTo = 10000;
+    var priceStartFrom = Model.PriceFrom.HasValue ? Model.PriceFrom.Value : priceRangeFrom;
+    var priceStartTo = Model.PriceTo.HasValue ? Model.PriceTo.Value : priceRangeTo;
+}
+
+<input id="searchURL" type="hidden" value="@Url.SearchProducts(Model.CategoryName.SanitizeString())" />
+
+<section class="blog-banner-area">
+    <div class="container h-100">
+        <div class="blog-banner">
+            <div class="text-center">
+                <h1>@Model.PageTitle</h1>
+                <h4>
+                  Search Latest Products On TheDrinkKiosk
+
+                </h4>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-margin--small mb-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-3 col-lg-4 col-md-5">
+                <div class="sidebar-categories">
+                    <div class="head">Product Categories</div>
+                    @if (Model.Categories != null && Model.Categories.Count > 0)
+                    {
+                        <ul class="main-categories">
+                            <li class="common-filter">
+                                <input data-href="@(!Model.CategoryID.HasValue ? string.Empty : Url.SearchProducts())"
+                                       class="pixel-radio datalink"
+                                       type="radio"
+                                       id="allCategories"
+                                       name="category"
+                                       @(!Model.CategoryID.HasValue ? "checked" : string.Empty)>
+
+                                <label for="allCategories" class="pointerCursor">
+                                    All Categories
+                                </label>
+                            </li>
+                            @foreach (var category in Model.Categories.OrderByDescending(x => x.Products.Count))
+                            {
+                                var categoryElementID = string.Format("in_cat_{0}", category.ID);
+
+                                <li class="common-filter">
+                                    <input data-href="@(category.ID == Model.CategoryID ? string.Empty : Url.SearchProducts(category.SanitizedName))"
+                                           class="pixel-radio datalink"
+                                           type="radio"
+                                           id="@categoryElementID"
+                                           name="category"
+                                           @(category.ID == Model.CategoryID ? "checked" : string.Empty)>
+
+                                    <label for="@categoryElementID" class="pointerCursor">
+                                        @category.Name <span>(@category.Products.Count)</span>
+                                    </label>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning b-0" role="alert">
+                            No categories available.
+                        </div>
+                    }
+
+                </div>
+                <div class="sidebar-filter">
+                    <div class="top-filter-head">Search Filters</div>
+                    @if (Model.Brands != null && Model.Brands.Count > 0)
+                    {
+                        <div class="common-filter">
+                            <div class="head">Brands</div>
+                            <form action="#">
+                                <ul>
+                                    @foreach (var category in Model.Categories.OrderByDescending(x => x.Products.Count))
+                                    {
+                                        var categoryElementID = string.Format("in_brand_{0}", category.ID);
+                                        <li class="filter-list">
+                                            <input data-href="@Url.SearchProducts(category.SanitizedName)" class="pixel-radio" type="radio" id="@categoryElementID" name="brand" @(category.ID == Model.CategoryID ? "checked" : string.Empty)>
+                                            <label for="@categoryElementID">@category.Name <span>(@category.Products.Count)</span></label>
+                                        </li>
+                                    }
+                                </ul>
+                            </form>
+                        </div>
+                    }
+
+                    @if (Model.Colors != null && Model.Colors.Count > 0)
+                    {
+                        <div class="common-filter">
+                            <div class="head">Colors</div>
+                            <form action="#">
+                                <ul>
+                                    @foreach (var category in Model.Categories.OrderByDescending(x => x.Products.Count))
+                                    {
+                                        var categoryElementID = string.Format("in_color_{0}", category.ID);
+                                        <li class="filter-list">
+                                            <input data-href="@Url.SearchProducts(category.SanitizedName)" class="pixel-radio" type="radio" id="@categoryElementID" name="color" @(category.ID == Model.CategoryID ? "checked" : string.Empty)>
+                                            <label for="@categoryElementID">@category.Name <span>(@category.Products.Count)</span></label>
+                                        </li>
+                                    }
+                                </ul>
+                            </form>
+                        </div>
+                    }
+
+                    @if (Model.Sizes != null && Model.Sizes.Count > 0)
+                    {
+                        <div class="common-filter">
+                            <div class="head">Sizes</div>
+                            <form action="#">
+                                <ul>
+                                    @foreach (var category in Model.Categories.OrderByDescending(x => x.Products.Count))
+                                    {
+                                        var categoryElementID = string.Format("in_size_{0}", category.ID);
+                                        <li class="filter-list">
+                                            <input data-href="@Url.SearchProducts(category.SanitizedName)" class="pixel-radio" type="radio" id="@categoryElementID" name="size" @(category.ID == Model.CategoryID ? "checked" : string.Empty)>
+                                            <label for="@categoryElementID">@category.Name <span>(@category.Products.Count)</span></label>
+                                        </li>
+                                    }
+                                </ul>
+                            </form>
+                        </div>
+                    }
+
+                    <div class="common-filter">
+                        <div class="head">Price Range</div>
+                        <div id="price-widget" class="price-range-area">
+                            <div class="price-range"></div>
+                            <div class="value-wrapper d-flex">
+                                <div class="price">Price:</div>
+                                <span>@ConfigurationsHelper.CurrencySymbol</span>
+                                <div class="lower-value"></div>
+                                <div class="to">to</div>
+                                <span>@ConfigurationsHelper.CurrencySymbol</span>
+                                <div class="upper-value"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-9 col-lg-8 col-md-7">
+                <div class="filter-bar d-flex flex-wrap align-items-center">
+                    <div class="sorting">
+                        <select id="sortBy">
+                            <option value="latest" @(string.IsNullOrEmpty(Model.SortBy) || Model.SortBy == "latest" ? "selected" : string.Empty)>Sort By: Latest Products</option>
+                            <option value="names" @(Model.SortBy == "names" ? "selected" : string.Empty)>Sort By: Product Names</option>
+                        </select>
+                    </div>
+                    <div class="sorting mr-auto">
+                        <select id="pageSize">
+                            @foreach (var pageSize in Enum.GetValues(typeof(PageSizeEnums)).Cast<PageSizeEnums>())
+                            {
+                                var value = (int)pageSize;
+
+                                <option value="@value" @(value == Model.PageSize ? "selected" : string.Empty)>
+                                    @string.Format("Show {0} Products", value)
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    <div>
+                        <div class="input-group filter-bar-search">
+                            <input id="q" type="text" placeholder="Search" value="@Model.SearchTerm">
+                            <div class="input-group-append">
+                                <button type="button" id="searchButton"><i class="fas fa-search"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <section class="lattest-product-area pb-40 category-list">
+                    @Html.Partial("_Search", Model)
+                </section>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    applyPriceRange(@priceRangeFrom, @priceRangeTo, @priceStartFrom, @priceStartTo);
+    clearTimeout(searchTimeout);
+
+    $("#sortBy").change(function () {
+        doSearch();
+    });
+    
+    $("#pageSize").change(function () {
+        doSearch();
+    });
+
+    $("#q").change(function () {
+        doSearch();
+    });
+
+    $("#q").keydown(function (e) {
+		if (e.keyCode == 51) {
+			return false;
+		}
+
+		clearTimeout(searchTimeout);
+    });
+
+    $("#q").keyup(function () {
+        doSearch();
+	});
+
+</script>
+
+@section IncludeHeaderStylesScripts
+{
+    <link href="~/Content/templates/aroma/vendors/nouislider/nouislider.min.css" rel="stylesheet" />
+    <script src="~/Content/templates/aroma/vendors/nouislider/nouislider.min.js"></script>
+}

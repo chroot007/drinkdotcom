@@ -1,0 +1,94 @@
+﻿<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+<form class="row login_form" id="loginForm">
+    @Html.AntiForgeryToken()
+    <div class="col-md-12 form-group">
+        <input class="form-control" name="Username" placeholder="Username" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Username'">
+    </div>
+    <div class="col-md-12 form-group">
+        <input type="password" class="form-control" name="Password" placeholder="Password" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Password'">
+    </div>
+    <div class="col-md-12 form-group">
+        <div class="creat_account">
+            <input type="checkbox" name="RememberMe" value="true" id="RememberMe" checked>
+            <input type="hidden" name="RememberMe" value="false">
+            <label class="form-check-label" for="RememberMe">
+                Remember Me?
+            </label>
+        </div>
+    </div>
+    <div class="col-md-12 form-group errorsRow" style="display:none">
+        <div class="alert alert-danger errorMessages mb-0" role="alert"></div>
+    </div>
+
+    <div id="divcaptch"></div>
+    <input id="txtcaptcha" type="text" style="display:none" required />
+
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <div class="g-recaptcha" data-sitekey="6LdPYOoUAAAAAHSBZAIOYwNb7-oxxx1V1vcPAkPK"></div>
+        </div>
+    </div>
+
+    <div class="col-md-12 form-group">
+        <button type="submit" id="loginButton" class="button button-login w-100">Login</button>
+        <a href="@Url.ForgotPassword()">Forgot Password?</a>
+    </div>
+</form>
+
+
+
+
+<script>
+    validateLoginForm();
+
+    $("#loginForm").submit(function (e) {
+        submitForm();
+
+        e.preventDefault();
+    });
+
+    //$("#loginButton").click(function () {
+    //    submitForm();
+    //});
+
+    function submitForm() {
+        $(".errorsRow .errorMessages", "#loginForm").html("");
+        $(".errorsRow", "#loginForm").hide(200);
+        $(".errorsRow .errorMessages", "#loginForm").hide();
+
+        if ($("#loginForm").valid()) {
+            $(".floader", "#loginForm").show();
+            $(".response-holder", "#loginForm").hide();
+
+            $.ajax({
+                url: "@Url.Login()",
+                type: "post",
+                data: $("#loginForm").serialize(),
+            })
+            .done(function (response) {
+                if (response != null && response.Success) {
+                    window.location.href = "/";
+                }
+                else {
+                    $(".floader", "#loginForm").hide();
+                    $(".response-holder", "#loginForm").show();
+                    $(".errorsRow .errorMessages", "#loginForm").html(response.Messages);
+                    $(".errorsRow", "#loginForm").show(200);
+                    $(".errorsRow .errorMessages", "#loginForm").show();
+                }
+            })
+            .fail(function(jqXHR, textStatus, errorThrown) {
+                 $(".floader", "#loginForm").hide();
+                 $(".response-holder", "#loginForm").show();
+
+                 swal("Error!", "An error has occured.", "error");
+
+                 console.log('jqXHR:' + jqXHR);
+                 console.log('textStatus:' + textStatus);
+                 console.log('errorThrown:' + errorThrown);
+             });
+        }
+    }
+
+</script>

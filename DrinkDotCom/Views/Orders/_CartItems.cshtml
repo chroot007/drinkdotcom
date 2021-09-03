@@ -1,0 +1,217 @@
+﻿@using Microsoft.AspNet.Identity;
+@using DrinkDotCom.Entities;
+@model DrinkDotCom.ViewModels.CartItemsViewModel
+
+@if (Model != null && Model.Products != null && Model.Products.Count > 0)
+{
+    var promoMessage = string.Empty;
+    var promoAlertClass = "alert-info";
+    var promoAlertStyle = "display:none";
+
+    var i = 0;
+
+    var totalAmount = Model.Products.Sum(x => x.Price * Model.ProductIDs.Where(productID => productID == x.ID).Count());
+    var discount = 0M;
+
+    if(!string.IsNullOrEmpty(Model.PromoCode))
+    {
+        if(Model.Promo != null && Model.Promo.Value > 0)
+        {
+            if(Model.Promo.ValidTill >= DateTime.Now)
+            {
+                if(Model.Promo.PromoType == (int)PromoTypes.Percentage)
+                {
+                    discount = Math.Round((totalAmount * Model.Promo.Value)/100);                    
+                }
+                else if(Model.Promo.PromoType == (int)PromoTypes.Amount)
+                {
+                    discount = Model.Promo.Value;
+                }
+                
+                promoMessage = string.Format("Success. Enjoy discount of {0}.", discount.WithCurrency());
+                promoAlertClass = "alert-success";
+                promoAlertStyle = "";
+            }
+            else
+            {
+                promoMessage = "Sorry. This promo/voucher has expired.";
+                promoAlertClass = "alert-warning";
+                promoAlertStyle = "";
+            }
+        }
+        else
+        {
+            promoMessage = "Invalid promo/voucher.";
+            promoAlertClass = "alert-danger";
+            promoAlertStyle = "";
+        }
+    }
+
+    var finalAmount = totalAmount - discount + ConfigurationsHelper.FlatDeliveryCharges;
+
+    TempData["FinalAmount"] = finalAmount;
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Name</th>
+                <th scope="col">Price</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Total</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var product in Model.Products)
+            {
+                i++;
+
+                <tr>
+                    <th scope="row">@i</th>
+                    <td>
+                        <a href="@Url.ProductDetails(product.Category.SanitizedName, product.ID)">
+                            @product.Name
+                        </a>
+                    </td>
+                    <td>
+                        @product.Price.WithCurrency()
+                    </td>
+                    <td>
+                        <input type="number" class="form-control changeQuantity productQuantity" value="@Model.ProductIDs.Where(x => x == product.ID).Count()" data-id="@product.ID" data-price="@product.Price" min="1" max="100" title="Quantity">
+                    </td>
+                    <td>
+                        @((product.Price * Model.ProductIDs.Where(x => x == product.ID).Count()).WithCurrency())
+                    </td>
+                    <td>
+                        <button class="deleteCartProduct btn btn-danger" type="button">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="4" class="text-right">
+                    <strong>Total</strong>
+                </td>
+                <td colspan="2">
+                    <span>
+                        @totalAmount.WithCurrency()
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4" class="text-right">
+                    <strong>Have Promo/Voucher ?</strong>
+                </td>
+                <td colspan="2">
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="PromoCode" placeholder="Enter Voucher/Promo Code" value="@Model.PromoCode">
+                        <input type="hidden" id="promoID" value="@(Model.Promo != null ? Model.Promo.ID : 0)">
+                        <div class="input-group-append">
+                            <button class="update-cart-links  btn btn-success" type="button" data-href="@Url.Checkout()">Apply</button>
+                        </div>
+                    </div>
+                    <div class="alert @promoAlertClass mb-0 mt-1" role="alert" style="@promoAlertStyle">
+                        @promoMessage
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4" class="text-right">
+                    <strong>Discount</strong>
+                </td>
+                <td colspan="2">
+                    <span>
+                        @discount.WithCurrency()
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4" class="text-right">
+                    <strong>Delivery Charges</strong>
+                </td>
+                <td colspan="2">
+                    <span>
+                        @ConfigurationsHelper.FlatDeliveryCharges.WithCurrency()
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4" class="text-right">
+                    <strong>Final Amount</strong>
+                </td>
+                <td colspan="2">
+                    <span>
+                        @finalAmount.WithCurrency()
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4" class="text-right">
+                </td>
+                <td colspan="2">
+                    <div class="btn-group" role="group" aria-label="Basic example">
+                        <button class="update-cart-links btn btn-primary" type="button" data-href="@Url.Checkout()" >
+                            <i class="fas fa-sync-alt mr-1"></i>
+                            Update
+                        </button>
+                        <button class="btn btn-success" id="nextDeliveryTab" type="button">
+                            <i class="fas fa-angle-right mr-1"></i>
+                            Next
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+}
+else
+{
+    <div class="alert alert-warning mb-0" role="alert">
+        No products in the cart. Please add some products in cart.
+    </div>
+}
+
+<script>
+    applyQuanityChanger();
+
+    $(".update-cart-links").click(function () {
+        var url = $(this).attr("data-href");
+
+        if (url != undefined && url != "") {
+
+            var promoCode = $("[name=PromoCode]").val()
+
+            if (promoCode) {
+                url = url + "?promoCode=" + promoCode;
+            }
+
+            $("#dtLoader").show();
+            $("#response-holder").html("");
+
+            $(".user-link").removeClass("active");
+            $(this).addClass("active");
+
+            $.ajax({
+                url: url
+            })
+            .done(function (response) {
+                $("#dtLoader").hide();
+                $("#response-holder").html(response);
+            });
+        }
+    });
+
+    $(".deleteCartProduct").click(function () {
+        $(this).parents("tr").remove();
+
+        updateCartItems();
+    });
+
+    $("#nextDeliveryTab").click(function () {
+        $('a#deliveryInfo', "#checkoutTabs").tab("show");
+    });
+</script>

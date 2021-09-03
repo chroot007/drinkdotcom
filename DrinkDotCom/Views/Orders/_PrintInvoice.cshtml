@@ -1,0 +1,185 @@
+﻿@using Microsoft.AspNet.Identity
+@using DrinkDotCom.Entities
+@model DrinkDotCom.ViewModels.PrintInvoiceViewModel
+@if (Model != null && Model.Order != null)
+{
+    var i = 0;
+    var orderStatus = Model.Order.OrderHistory.OrderByDescending(x => x.ModifiedOn).FirstOrDefault();
+
+    <html>
+    <head>
+        <title>@string.Format("{0} {1} {2}", Model.PageTitle, string.IsNullOrEmpty(Model.PageTitle) ? "" : "-", ConfigurationsHelper.ApplicationName).Replace("  ", " ").Trim()</title>
+        <meta name="description" content="@Model.PageDescription">
+
+        <meta property="og:title" content="@string.Format("{0} {1} {2}", Model.PageTitle, string.IsNullOrEmpty(Model.PageTitle) ? "" : "-", ConfigurationsHelper.ApplicationName).Replace("  ", " ").Trim()" />
+        <meta property="og:description" content="@Model.PageDescription" />
+        <meta property="og:url" content="@Model.PageURL" />
+        <meta property="og:image" content="@Model.PageImageURL" />
+        <meta property="og:type" content="website" />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@ConfigurationsHelper.TwitterUsername" />
+        <meta name="twitter:creator" content="@ConfigurationsHelper.TwitterUsername" />
+
+        <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    </head>
+    <body>
+        <div class="container my-5">
+            <div class="row" id="invoice">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body p-0">
+                            <div class="row p-5">
+                                <div class="col-md-6">
+                                    <h3>
+                                        @ConfigurationsHelper.ApplicationName
+                                    </h3>
+                                    <small>@Html.Raw(ConfigurationsHelper.Address)</small>
+                                    <br />
+                                    <small>@ConfigurationsHelper.PhoneNumber, @ConfigurationsHelper.MobileNumber</small>
+                                </div>
+
+                                <div class="col-md-6 text-right">
+                                    <h3>
+                                        Invoice #@Model.OrderID
+                                    </h3>
+                                    <p class="mb-1">
+                                        <span class="text-muted">Dated: </span> @Model.Order.PlacedOn
+                                    </p>
+                                    <p class="mb-1">
+                                        <span class="text-muted">Status: </span> @((OrderStatus)orderStatus.OrderStatus)
+                                    </p>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <div class="row pb-5 p-5">
+                                <div class="col-md-6">
+                                    <p class="font-weight-bold mb-4">Customer Information</p>
+                                    <p class="mb-1">
+                                        @Model.Order.CustomerName
+                                    </p>
+                                    <p>
+                                        @Model.Order.CustomerEmail, @Model.Order.CustomerPhone
+                                        <br />
+                                        @Model.Order.CustomerAddress
+                                        <br />
+                                        @Model.Order.CustomerCity, @Model.Order.CustomerCountry
+                                        <br />
+                                        @Model.Order.CustomerZipCode
+                                    </p>
+                                </div>
+
+                                <div class="col-md-6 text-right">
+                                    <p class="font-weight-bold mb-4">Payment Details</p>
+                                    <p class="mb-1">
+                                        <span class="text-muted">Payment Method: </span> @((PaymentMethods)Model.Order.PaymentMethod)
+                                    </p>
+                                    <p class="mb-1">
+                                        <span class="text-muted">Order ID: </span> @(Model.Order.ID)
+                                    </p>
+                                    <p class="mb-1">
+                                        <span class="text-muted">Code: </span> @(Model.Order.OrderCode)
+                                    </p>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <div class="row p-5">
+                                <div class="col-md-12">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th class="border-0 text-uppercase small font-weight-bold">#</th>
+                                                <th class="border-0 text-uppercase small font-weight-bold">Product Name</th>
+                                                <th class="border-0 text-uppercase small font-weight-bold">Price</th>
+                                                <th class="border-0 text-uppercase small font-weight-bold">Quantity</th>
+                                                <th class="border-0 text-uppercase small font-weight-bold">Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var orderItem in Model.Order.OrderItems)
+                                            {
+                                                i++;
+
+                                                <tr>
+                                                    <td scope="row">@i</td>
+                                                    <td>
+                                                        @orderItem.Product.Name
+                                                    </td>
+                                                    <td>
+                                                        @orderItem.ItemPrice
+                                                    </td>
+                                                    <td>
+                                                        @orderItem.Quantity
+                                                    </td>
+                                                    <td>
+                                                        @((orderItem.ItemPrice * orderItem.Quantity).WithCurrency())
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <hr />
+                            @if (Model.Order.Promo != null)
+                            {
+                                <div class="d-flex flex-row-reverse px-4">
+                                    <div class="py-3 px-5 text-right">
+                                        <div class="font-weight-light">
+                                            @string.Format("Promo Applied '{0}'.", Model.Order.Promo.Code)
+                                        </div>
+                                    </div>
+                                </div>
+
+                            }
+                            <div class="d-flex flex-row-reverse p-4">
+                                <div class="py-3 px-5 text-right">
+                                    <div class="mb-2">Total Amount</div>
+                                    <div class="h2 font-weight-light">
+                                        @Model.Order.TotalAmmount.WithCurrency()
+                                    </div>
+                                </div>
+
+                                <div class="py-3 px-5 text-right">
+                                    <div class="mb-2">Discount</div>
+                                    <div class="h2 font-weight-light">
+                                        @Model.Order.Discount.WithCurrency()
+                                    </div>
+                                </div>
+
+                                <div class="py-3 px-5 text-right">
+                                    <div class="mb-2">Delivery Charges</div>
+                                    <div class="h2 font-weight-light">
+                                        @Model.Order.DeliveryCharges.WithCurrency()
+                                    </div>
+                                </div>
+
+                                <div class="py-3 px-5 text-right">
+                                    <div class="mb-2">Final Amount</div>
+                                    <div class="h2 font-weight-light">
+                                        @Model.Order.FinalAmmount.WithCurrency()
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="~/Scripts/jquery-3.4.1.min.js"></script>
+        <script src="~/Scripts/bootstrap.min.js"></script>
+
+        <script>
+            $(function () {
+                window.print();
+            });
+        </script>
+    </body>
+    </html>
+}
